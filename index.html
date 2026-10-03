@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Хатуу, шингэн, хийн шилжилт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600;700&family=Rubik:wght@500;600;700;800&display=swap">
+<style>
+:root{
+  --bg1:#f3fbff; --bg2:#d9efff;
+  --ink:#16284a; --muted:#5a6a86; --line:#e3eef9; --card:#ffffff;
+  --solid:#00a3c4; --solid-d:#007f99; --solid-soft:#dcf6fb;
+  --liquid:#2f6bff; --liquid-d:#1d4fd1; --liquid-soft:#e3ebff;
+  --gas:#9a63f5; --gas-d:#7440d6; --gas-soft:#f0e8ff;
+  --heat:#ff5a36; --heat-d:#d83c1b; --heat-soft:#ffe8e1;
+  --cool:#22b2f0; --cool-soft:#e0f5fe;
+  --sun:#ffc23a; --sun-d:#d99a00; --sun-soft:#fff4d6;
+  --green:#1fb26b; --green-d:#138a50; --green-soft:#ddf7ea;
+  --red:#e5484d;
+  --shadow:0 10px 28px rgba(30,90,170,.14);
+  --hfont:"Comfortaa","Rubik",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{color:var(--ink);font-family:"Rubik","Segoe UI",system-ui,sans-serif;font-size:21px;line-height:1.45;overflow:hidden;
+  background:linear-gradient(180deg,var(--bg1) 0%,#eaf6ff 45%,var(--bg2) 100%)}
+button{font:inherit;cursor:pointer}
+
+/* ===== Decorations: ice (top) · bubbles (air) · waves (water) ===== */
+.crystals{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg fill='none' stroke='%2300a3c4' stroke-opacity='.18' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M40 20v40M23 30l34 20M23 50l34-20M40 20l-5-5M40 20l5-5M40 60l-5 5M40 60l5 5'/%3E%3Cpath d='M135 95v30M122 102l26 16M122 118l26-16'/%3E%3Cpath d='M80 140l12 7v14l-12 7-12-7v-14z'/%3E%3C/g%3E%3C/svg%3E")}
+.bubbles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bubbles span{position:absolute;bottom:-60px;border-radius:50%;border:2px solid rgba(154,99,245,.35);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.9),rgba(154,99,245,.08) 60%);animation:rise linear infinite}
+@keyframes rise{0%{transform:translate(0,0)}25%{transform:translate(14px,-28vh)}50%{transform:translate(-10px,-56vh)}75%{transform:translate(12px,-84vh)}100%{transform:translate(0,-118vh)}}
+
+/* ===== Header (ice) ===== */
+.top{position:fixed;inset:0 0 auto 0;height:62px;display:flex;align-items:center;gap:14px;padding:0 18px;z-index:20;background:linear-gradient(180deg,#ffffff,#effaff)}
+.top::after{content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='14' viewBox='0 0 64 14'%3E%3Cpath d='M0 0 L7 11 L13 0 L19 6 L25 0 L33 14 L41 0 L47 7 L53 0 L58 9 L64 0 Z' fill='%23effaff' stroke='%23bfe6f6' stroke-width='1.2'/%3E%3C/svg%3E") repeat-x top/64px 14px}
+.brand{font-family:var(--hfont);font-weight:700;font-size:18px;display:flex;align-items:center;gap:10px;white-space:nowrap;color:var(--solid-d)}
+.trio{display:flex;gap:2px;font-size:22px}
+.trio span{display:inline-block;animation:hop 2.4s ease-in-out infinite}
+.trio span:nth-child(2){animation-delay:.3s}.trio span:nth-child(3){animation-delay:.6s}
+@keyframes hop{0%,60%,100%{transform:none}30%{transform:translateY(-5px)}}
+.stage{flex:1;min-width:0}
+.stage-name{font-weight:700;color:var(--liquid-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.thermo{display:flex;align-items:center;gap:0;width:130px;flex:none}
+.thermo .bulb{width:20px;height:20px;border-radius:50%;background:var(--heat);border:3px solid #fff;box-shadow:0 0 0 2px #ffc9bb;z-index:1}
+.thermo .tube{flex:1;height:10px;margin-left:-4px;border-radius:0 99px 99px 0;background:#fff;box-shadow:inset 0 0 0 2px #ffd6cb;overflow:hidden}
+.thermo .tube i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cool),var(--sun),var(--heat));transition:width .5s}
+.timer{display:flex;align-items:center;gap:8px;font-weight:800;font-variant-numeric:tabular-nums;font-size:23px;padding:3px 14px;border-radius:99px;background:var(--green-soft);color:var(--green-d)}
+.timer.warn{background:var(--sun-soft);color:var(--sun-d)}
+.timer.over{background:var(--heat-soft);color:var(--heat-d)}
+.tbtn{border:2px solid var(--line);background:#fff;border-radius:99px;padding:5px 13px;font-weight:700;font-size:16px;color:var(--ink)}
+.tbtn:hover{border-color:var(--liquid);color:var(--liquid)}
+
+/* ===== Slides ===== */
+.deck{position:absolute;inset:78px 0 92px 0;z-index:1}
+.slide{position:absolute;inset:0;overflow:auto;padding:14px clamp(16px,4vw,56px) 26px;opacity:0;visibility:hidden;transform:scale(.97);filter:blur(4px);transition:opacity .45s,transform .45s,filter .45s,visibility .45s}
+.slide.active{opacity:1;visibility:visible;transform:none;filter:none}
+.inner{max-width:1280px;margin:0 auto}
+h1{font-family:var(--hfont);font-size:clamp(38px,5.4vw,70px);line-height:1.1;margin:0 0 14px;font-weight:700}
+h2{font-family:var(--hfont);font-size:clamp(26px,3vw,40px);margin:0 0 6px;font-weight:700;display:flex;align-items:center;gap:12px}
+h3{font-size:23px;margin:0 0 8px;font-weight:800}
+.sub{color:var(--muted);margin:0 0 14px;font-size:20px}
+.card{background:var(--card);border-radius:26px;box-shadow:var(--shadow);padding:18px 22px;border:3px solid #eaf4fd;position:relative}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.btn{border:none;border-radius:99px;padding:10px 20px;font-weight:800;background:var(--liquid);color:#fff;box-shadow:0 4px 0 var(--liquid-d);transition:transform .1s,filter .15s}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--liquid-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.btn.ghost.on{background:var(--liquid-soft);border-color:var(--liquid);color:var(--liquid-d)}
+.btn.solid{background:var(--solid);box-shadow:0 4px 0 var(--solid-d)}
+.btn.gas{background:var(--gas);box-shadow:0 4px 0 var(--gas-d)}
+.btn.heat{background:var(--heat);box-shadow:0 4px 0 var(--heat-d)}
+.btn.cool{background:var(--cool);box-shadow:0 4px 0 #128cc2}
+.btn.sun{background:var(--sun);color:#3b2a00;box-shadow:0 4px 0 var(--sun-d)}
+.btn.green{background:var(--green);box-shadow:0 4px 0 var(--green-d)}
+.btn.sel{outline:4px solid rgba(255,194,58,.8);outline-offset:2px}
+.muted{color:var(--muted)}
+.note{background:var(--sun-soft);border-radius:18px;padding:12px 16px;margin-top:14px;border:2px dashed #ffd877}
+.def{border-radius:16px;padding:10px 14px;margin:8px 0}
+.def.s{background:var(--solid-soft)}.def.l{background:var(--liquid-soft)}.def.g{background:var(--gas-soft)}.def.h{background:var(--heat-soft)}
+.s-c{color:var(--solid-d)}.l-c{color:var(--liquid-d)}.g-c{color:var(--gas-d)}.h-c{color:var(--heat-d)}.c-c{color:#0d86bd}
+
+/* ===== Bottom nav (water) ===== */
+.nav{position:fixed;inset:auto 0 0 0;height:74px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;z-index:20;gap:10px;background:linear-gradient(180deg,#4a8bff,#2457d6)}
+.nav::before,.nav::after{content:"";position:absolute;left:0;right:0;top:-18px;height:20px;pointer-events:none;background-repeat:repeat-x;background-size:240px 20px;animation:wave 9s linear infinite}
+.nav::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='20' viewBox='0 0 240 20'%3E%3Cpath d='M0 10 Q30 0 60 10 T120 10 T180 10 T240 10 V20 H0Z' fill='%2394bcff'/%3E%3C/svg%3E");opacity:.8;animation-duration:13s;animation-direction:reverse}
+.nav::after{top:-12px;height:14px;background-size:180px 14px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='14' viewBox='0 0 180 14'%3E%3Cpath d='M0 7 Q22 0 45 7 T90 7 T135 7 T180 7 V14 H0Z' fill='%234a8bff'/%3E%3C/svg%3E")}
+@keyframes wave{to{background-position-x:240px}}
+.nav .btn{background:#fff;color:var(--liquid-d);box-shadow:0 4px 0 rgba(0,0,0,.18)}
+.nav .btn[disabled]{opacity:.5}
+.dots{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;position:relative;z-index:1}
+.dot{width:32px;height:32px;border:none;border-radius:50% 0 50% 50%;transform:rotate(-45deg);background:rgba(255,255,255,.25);color:#fff;font-weight:800;font-size:14px;padding:0;transition:.2s}
+.dot span{display:block;transform:rotate(45deg)}
+.dot.on{background:#fff;color:var(--liquid-d);transform:rotate(-45deg) scale(1.2);box-shadow:0 0 12px rgba(255,255,255,.8)}
+.dot.done{background:#9cc1ff;color:#0e2f80}
+
+/* ===== Notes ===== */
+.tnotes{position:fixed;right:18px;bottom:100px;width:min(420px,calc(100vw - 36px));background:#fffaf0;border:2px solid var(--sun);border-radius:20px;padding:14px 18px;font-size:17px;box-shadow:var(--shadow);z-index:25;display:none}
+.tnotes.show{display:block}
+.tnotes h4{margin:0 0 6px;font-size:18px}
+.tnotes ul{margin:0;padding-left:20px}
+
+/* ===== Intro ===== */
+.intro{min-height:calc(100vh - 200px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px}
+.intro .school{font-family:var(--hfont);font-size:clamp(24px,2.8vw,36px);font-weight:700;color:var(--solid-d)}
+.intro .subject{font-family:var(--hfont);font-size:clamp(50px,7.5vw,96px);font-weight:700;margin:0;line-height:1.05;background:linear-gradient(90deg,var(--solid),var(--liquid) 50%,var(--gas));-webkit-background-clip:text;background-clip:text;color:transparent}
+.intro .topic{font-family:var(--hfont);font-size:clamp(26px,3.4vw,44px);font-weight:700;color:#fff;padding:12px 30px;border-radius:99px;background:linear-gradient(90deg,var(--solid),var(--liquid),var(--gas));box-shadow:0 10px 30px rgba(47,107,255,.35)}
+.intro .teacher{font-size:clamp(22px,2.5vw,30px);font-weight:700;color:var(--ink);padding:10px 26px;border-radius:99px;background:#fff;box-shadow:var(--shadow)}
+.states-row{display:flex;gap:clamp(18px,4vw,60px);align-items:flex-end}
+.states-row div{display:flex;flex-direction:column;align-items:center;font-weight:800;font-size:18px;gap:4px}
+.states-row .e{font-size:clamp(46px,6vw,76px);animation:hop 2.6s ease-in-out infinite}
+.states-row div:nth-child(2) .e{animation-delay:.4s}.states-row div:nth-child(3) .e{animation-delay:.8s}
+
+/* ===== Video ===== */
+.vid{background:#fff;border-radius:24px;overflow:hidden;box-shadow:var(--shadow);border:3px solid #eaf4fd}
+.vid canvas{display:block;width:100%;height:auto;max-height:calc(100vh - 360px);object-fit:contain;background:#eaf5ff;cursor:pointer}
+.vbar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f2f8ff;flex-wrap:wrap}
+.vbar button{border:none;background:#fff;color:var(--ink);border-radius:99px;padding:6px 12px;font-weight:700;font-size:15px;box-shadow:0 1px 0 #d5e3f3}
+.vbar button:hover{color:var(--liquid)}
+.vprog{flex:1;min-width:120px;height:10px;border-radius:99px;background:#dbe8f7;cursor:pointer;position:relative;overflow:hidden}
+.vprog i{position:absolute;inset:0 auto 0 0;width:0;background:linear-gradient(90deg,var(--solid),var(--liquid),var(--gas));border-radius:99px}
+.vtime{color:var(--muted);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.chap{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+.riddle{font-size:24px;font-weight:600;line-height:1.6}
+.reveal{margin-top:10px;font-size:32px;font-weight:800;color:var(--liquid-d);opacity:0;transform:scale(.6);transition:.4s}
+.reveal.show{opacity:1;transform:none}
+
+/* ===== KWL ===== */
+table{border-collapse:separate;border-spacing:0;width:100%}
+.kwl{border-radius:24px;overflow:hidden;box-shadow:var(--shadow)}
+.kwl th{font-size:22px;padding:14px;color:#fff;text-align:left;font-family:var(--hfont)}
+.kwl th:nth-child(1){background:var(--solid)}
+.kwl th:nth-child(2){background:var(--liquid)}
+.kwl th:nth-child(3){background:var(--gas)}
+.kwl td{vertical-align:top;background:#fff;border-right:2px solid var(--line);padding:0;width:33.3%}
+.kwl td:last-child{border-right:none}
+.kwl.two td{width:50%}
+.kwl td div{min-height:260px;padding:14px;outline:none;font-size:20px;white-space:pre-wrap}
+.kwl td div:empty::before{content:attr(data-ph);color:#a7b4cb}
+.kwl td div:focus{background:#fffef2}
+.kwl td div.ro{background:#f6f9fd;color:#53697e;font-size:18px;min-height:0;height:100%}
+.kwl td div.ro:empty::before{content:"(хоосон)"}
+.kwl.end td:nth-child(3) div{min-height:300px;font-size:22px;background:#f7f2ff}
+
+/* ===== Goals ===== */
+.goals{list-style:none;padding:0;margin:0}
+.goals li{margin:9px 0;padding:10px 14px;border-radius:16px;background:#f5faff}
+.goals li:nth-child(4n+1){background:var(--solid-soft)}.goals li:nth-child(4n+2){background:var(--liquid-soft)}
+.goals li:nth-child(4n+3){background:var(--gas-soft)}.goals li:nth-child(4n){background:var(--heat-soft)}
+
+/* ===== Particles ===== */
+.jar{position:relative;border:5px solid #b9dcf3;border-top:none;border-radius:0 0 34px 34px;background:linear-gradient(90deg,rgba(255,255,255,.75),rgba(230,245,255,.55));height:330px;box-shadow:inset 0 -10px 30px rgba(47,107,255,.08)}
+.jar::before{content:"";position:absolute;top:0;left:-14px;right:-14px;height:10px;border-radius:99px;background:#b9dcf3}
+.jar canvas{position:absolute;inset:0;width:100%;height:100%}
+.jar .lid{position:absolute;top:-30px;left:50%;transform:translateX(-50%);font-weight:800;font-size:15px;color:var(--muted)}
+.state-badge{font-family:var(--hfont);font-size:30px;font-weight:700;padding:6px 18px;border-radius:99px;display:inline-block;color:#fff;transition:background .3s}
+.trange{width:100%;accent-color:var(--heat);height:28px}
+.tlabels{display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--muted)}
+.props th{padding:10px;font-size:19px;color:#fff;text-align:left}
+.props th:nth-child(2){background:var(--solid)}.props th:nth-child(3){background:var(--liquid)}.props th:nth-child(4){background:var(--gas)}
+.props th:first-child{background:#7f8fb0;border-radius:18px 0 0 0}.props th:last-child{border-radius:0 18px 0 0}
+.props td{padding:9px 10px;font-size:17px;background:#fff;border-bottom:2px solid var(--line)}
+.props td:first-child{font-weight:800;background:#f6f9fd}
+.props tr.hl td:not(:first-child){transition:background .3s}
+
+/* ===== Sorting ===== */
+.tray{display:flex;flex-wrap:wrap;gap:10px;min-height:66px;padding:12px;border-radius:22px;background:#fff;box-shadow:var(--shadow);border:3px dashed #cfe2f6}
+.chip{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;background:#f5f9ff;border:2px solid #dbe8f7;font-weight:700;font-size:19px;cursor:grab;user-select:none;transition:.15s}
+.chip:hover{transform:translateY(-2px);border-color:var(--liquid)}
+.chip .e{font-size:28px}
+.chip.picked{border-color:var(--sun);background:var(--sun-soft);box-shadow:0 0 0 4px rgba(255,194,58,.35)}
+.chip.bad{animation:shake .4s;border-color:var(--red);background:#ffe6e6}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.bins{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.bin{border-radius:26px;padding:12px;min-height:220px;color:#fff;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.bin:hover,.bin.over{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.18)}
+.bin.s{background:linear-gradient(160deg,#25c2de,var(--solid-d))}
+.bin.l{background:linear-gradient(160deg,#5a8bff,var(--liquid-d))}
+.bin.g{background:linear-gradient(160deg,#b58aff,var(--gas-d))}
+.bin h3{font-family:var(--hfont);font-size:26px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.bin .in{display:flex;flex-wrap:wrap;gap:6px}
+.bin .in .chip{background:rgba(255,255,255,.92);color:var(--ink);font-size:16px;padding:4px 10px;cursor:default;border-color:transparent}
+.bin .in .chip .e{font-size:22px}
+
+/* ===== Water lab ===== */
+.lab-wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;align-items:start}
+.lab{background:#fff;border-radius:26px;box-shadow:var(--shadow);border:3px solid #eaf4fd;overflow:hidden}
+.lab canvas{display:block;width:100%;height:auto;max-height:calc(100vh - 300px);object-fit:contain;background:#eef7ff}
+.lab .ctrl .btn{padding:7px 13px;font-size:16px}
+.lab .ctrl{display:flex;gap:10px;flex-wrap:wrap;padding:10px 12px;background:#f2f8ff;justify-content:center}
+.cycle svg{width:100%;height:auto;display:block}
+.cycle .arr{opacity:.35;transition:opacity .25s}
+.cycle .arr.on{opacity:1}
+.cycle .arr.on path{stroke-width:7}
+.proc{font-family:var(--hfont);font-size:28px;font-weight:700;text-align:center;min-height:44px;margin:4px 0}
+
+/* ===== Daily life ===== */
+.sit{display:flex;align-items:center;gap:20px}
+.sit .pic{font-size:clamp(70px,9vw,120px);line-height:1;animation:hop 2.6s ease-in-out infinite}
+.sit .txt{font-size:28px;font-weight:700}
+.popts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.popts .btn{padding:14px 10px;font-size:20px}
+.popts .btn.right{background:var(--green);box-shadow:0 4px 0 var(--green-d)}
+.popts .btn.wrong{opacity:.4}
+.feedback{font-size:21px;font-weight:700;min-height:32px;margin-top:12px}
+.feedback.ok{color:var(--green-d)}.feedback.no{color:var(--red)}
+.score{font-size:22px;font-weight:800;color:var(--green-d)}
+
+/* ===== Experiment ===== */
+.exp-stage{display:flex;justify-content:center;gap:50px;align-items:flex-end;padding:20px 10px 10px;background:linear-gradient(#fff,#eef7ff);border-radius:26px;box-shadow:var(--shadow);position:relative;min-height:300px}
+.exp-stage::after{content:"";position:absolute;left:20px;right:20px;bottom:24px;height:8px;border-radius:99px;background:#d8c3a5}
+.cup{position:relative;width:150px;height:190px;border-radius:0 0 28px 28px;z-index:1;margin-bottom:28px}
+.cup.metal{background:linear-gradient(90deg,#8d99a8,#e9eef3 35%,#b4bfcb 60%,#7b8796)}
+.cup.glass{background:rgba(220,240,255,.35);border:4px solid rgba(150,200,235,.9);border-top:none}
+.cup .liq{position:absolute;left:4px;right:4px;bottom:4px;height:72%;border-radius:0 0 22px 22px;background:rgba(255,92,150,.55)}
+.cup .ice{position:absolute;font-size:34px}
+.cup .lbl{position:absolute;bottom:-34px;left:0;right:0;text-align:center;font-weight:800;font-size:17px}
+.drop{position:absolute;width:10px;height:13px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 35% 35%,#fff,rgba(190,225,255,.75) 60%,rgba(120,180,230,.85));box-shadow:0 1px 2px rgba(0,60,120,.3);opacity:0;transform:scale(.2);transition:opacity .5s,transform .5s;z-index:2}
+.drop.show{opacity:1;transform:scale(1)}
+.clock{position:absolute;top:12px;right:16px;font-weight:800;font-size:22px;background:#fff;border-radius:99px;padding:4px 14px;box-shadow:var(--shadow)}
+.steps{margin:0;padding-left:24px}
+.steps li{margin:4px 0}
+
+/* ===== Quiz ===== */
+.quiz-q{font-family:var(--hfont);font-size:30px;font-weight:700;margin:8px 0 16px}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.qopt{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 20px;border-radius:22px;border:3px solid var(--line);background:#fff;font-weight:700;font-size:23px;transition:.15s;box-shadow:var(--shadow)}
+.qopt:hover{border-color:var(--liquid);transform:translateY(-2px)}
+.qopt .k{width:44px;height:44px;flex:none;border-radius:50% 0 50% 50%;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+.qopt .k span{transform:rotate(45deg)}
+.qopt:nth-child(1) .k{background:var(--solid)}.qopt:nth-child(2) .k{background:var(--liquid)}
+.qopt:nth-child(3) .k{background:var(--gas)}.qopt:nth-child(4) .k{background:var(--heat)}
+.qopt.right{background:#d8f7e4;border-color:var(--green)}
+.qopt.wrong{background:#ffe0e0;border-color:var(--red)}
+.qopt[disabled]{cursor:default;transform:none}
+.qbar{display:flex;gap:6px;margin-bottom:10px}
+.qbar i{flex:1;height:10px;border-radius:99px;background:#dbe8f7}
+.qbar i.ok{background:var(--green)}.qbar i.no{background:var(--red)}.qbar i.cur{background:var(--liquid)}
+.result{text-align:center;padding:30px}
+.result .bigstars{font-size:64px;letter-spacing:6px}
+
+/* ===== Reflection ===== */
+.lights{display:flex;gap:14px;flex-wrap:wrap}
+.light{flex:1;min-width:150px;border:3px solid var(--line);background:#fff;border-radius:22px;padding:14px;text-align:center;font-weight:700}
+.light .e{font-size:50px}
+.light.on{border-color:var(--liquid);background:var(--liquid-soft);transform:scale(1.03)}
+.light .n{font-size:28px;color:var(--liquid-d)}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@media (max-height:900px){
+  body{font-size:18px}
+  h2{font-size:29px}
+  .sub{font-size:17px;margin-bottom:10px}
+  .card{padding:14px 18px}
+  .riddle{font-size:21px;line-height:1.45}
+  .reveal{font-size:26px}
+  .note{padding:8px 12px;margin-top:10px}
+  .kwl td div{min-height:210px}
+  .jar{height:250px}
+  .state-badge{font-size:24px}
+  .props td{font-size:15px;padding:6px 8px}.props th{font-size:16px;padding:7px 8px}
+  .bin{min-height:170px}.bin h3{font-size:22px}
+  .chip{font-size:17px;padding:6px 12px}.chip .e{font-size:24px}
+  .proc{font-size:23px;min-height:36px}
+  .def{padding:7px 12px;margin:5px 0;font-size:16px}
+  .sit .txt{font-size:23px}
+  .popts .btn{font-size:18px;padding:11px 8px}
+  .exp-stage{min-height:250px}
+  .cup{width:120px;height:160px}
+  .quiz-q{font-size:25px;margin:4px 0 10px}
+  .qopt{padding:12px 16px;font-size:20px}
+  .light .e{font-size:38px}.light{padding:10px}
+  .goals li{margin:6px 0;padding:7px 12px}
+}
+@media (max-width:900px){
+  body{font-size:18px}
+  .grid2,.grid3,.lab-wrap,.quiz-opts,.bins,.popts{grid-template-columns:1fr !important}
+  .brand .t,.thermo{display:none}
+  .dots{display:none}
+}
+</style>
+</head>
+<body>
+<div class="crystals"></div>
+<div class="bubbles" id="bubbles"></div>
+
+<header class="top">
+  <div class="brand"><span class="trio"><span>🧊</span><span>💧</span><span>💨</span></span><span class="t">Хүн байгаль · 5-р анги</span></div>
+  <div class="stage"><span class="stage-name" id="stageName"></span></div>
+  <div class="thermo" title="Хичээлийн явц"><span class="bulb"></span><span class="tube"><i id="progress"></i></span></div>
+  <div class="timer" id="timer" title="Хичээлийн үлдсэн хугацаа (2 удаа дарвал 40:00 болно)">⏱ <span id="tval">40:00</span></div>
+  <button class="tbtn" id="tPlay">▶ Эхлэх</button>
+  <button class="tbtn" id="notesBtn" title="Багшийн тэмдэглэл (N)">📝 Багшид</button>
+  <button class="tbtn" id="fsBtn" title="Бүтэн дэлгэц (F)">⛶</button>
+</header>
+
+<main class="deck" id="deck">
+
+<!-- 0. Танилцуулга -->
+<section class="slide" data-name="Танилцуулга" data-min="1"
+  data-notes="Хүүхдүүдтэй мэндэлж, өөрийгөө танилцуулна.|Дээд талын ▶ Эхлэх товчоор 40 минутын цагийг эхлүүлнэ. Дээд талын жижиг термометр хичээлийн явцыг харуулна.">
+  <div class="inner intro">
+    <div class="states-row"><div><span class="e">🧊</span><span class="s-c">Хатуу</span></div><div><span class="e">💧</span><span class="l-c">Шингэн</span></div><div><span class="e">💨</span><span class="g-c">Хий</span></div></div>
+    <div class="school">🏫 1-р сургууль</div>
+    <h1 class="subject">Хүн байгаль</h1>
+    <div class="topic">Хатуу, шингэн, хийн шилжилт</div>
+    <div class="teacher">👩‍🏫 Багш: В. Гэрэлтуяа</div>
+  </div>
+</section>
+
+<!-- 1. Оньсого ба бичлэг -->
+<section class="slide" data-name="Оньсого: Би хэн бэ?" data-min="3"
+  data-notes="Оньсогыг чангаар уншиж, хүүхдүүдээр таалгасны дараа “Хариу” товчийг дарна.|“Усны гайхалтай аялал” бичлэгийг (≈40 сек) үзүүлнэ.|Асуулт: Мөс юу болсон бэ? Ус юу болсон бэ? Дахиад мөс болж чадах уу?">
+  <div class="inner">
+    <h2>🤔 Би хэн бэ?</h2>
+    <p class="sub">Оньсогыг таагаад, дараа нь бичлэгээс миний аяллыг хараарай!</p>
+    <div class="grid2" style="grid-template-columns:.62fr 1.38fr">
+      <div class="card">
+        <h3>🧩 Оньсого</h3>
+        <p class="riddle">Хүйтэнд — чулуу шиг хатуу,<br>Дулаанд — урсаж гол болно,<br>Халуунд — уур болж нисдэг.<br><span class="muted" style="font-size:19px">Би хэн бэ?</span></p>
+        <button class="btn" onclick="this.nextElementSibling.classList.add('show');confetti(60)">Хариу 👀</button>
+        <div class="reveal">💧 УС!</div>
+      </div>
+      <div class="vid" id="vid1"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. KWL -->
+<section class="slide" data-name="Бид юу мэдэх вэ?" data-min="2"
+  data-notes="Сурагчдын хэлсэн санааг хоёр баганад шууд бичнэ (нүдэн дээр дарж бичнэ).|“Шинээр мэдэж авлаа” баганыг хичээлийн төгсгөлд бөглөнө.">
+  <div class="inner">
+    <h2>🧠 Ус, мөс, уурын талаар бид юу мэдэх вэ?</h2>
+    <p class="sub">Нүдэн дээр дарж санаагаа бичээрэй. Хичээлийн төгсгөлд юу шинээр сурснаа бичнэ шүү! 🌟</p>
+    <table class="kwl two">
+      <tr><th>✅ Би мэднэ</th><th>❓ Мэдэхийг хүсэж байна</th></tr>
+      <tr>
+        <td><div contenteditable="true" data-k="sl_kwl1" data-ph="Жишээ нь: Мөс хайлж ус болдог…"></div></td>
+        <td><div contenteditable="true" data-k="sl_kwl2" data-ph="Жишээ нь: Үүл юунаас бүтдэг вэ?"></div></td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. Сэдэв ба зорилго -->
+<section class="slide" data-name="Хатуу, шингэн, хийн шилжилт" data-min="1"
+  data-notes="Сэдвээ зарлаж, зорилгыг хүүхдүүдтэй хамт уншина.">
+  <div class="inner grid2" style="align-items:center;min-height:calc(100vh - 220px)">
+    <div>
+      <h1><span class="s-c">Хатуу</span>, <span class="l-c">шингэн</span>,<br><span class="g-c">хийн</span> шилжилт</h1>
+      <p class="sub">Ус хэрхэн мөс, уур болж хувирдгийг судалцгаая!</p>
+      <div class="states-row" style="justify-content:flex-start"><div><span class="e">🧊</span></div><div><span class="e">➡️</span></div><div><span class="e">💧</span></div><div><span class="e">➡️</span></div><div><span class="e">♨️</span></div></div>
+    </div>
+    <div class="card">
+      <h3>🎯 Өнөөдөр бид:</h3>
+      <ul class="goals">
+        <li>🧊💧💨 Хатуу, шингэн, хийг ялгана</li>
+        <li>🔥 <b>Хайлах</b>, <b>уурших</b> үзэгдлийг ажиглана</li>
+        <li>❄️ <b>Хөлдөх</b>, <b>конденсаци</b>-ыг ажиглана</li>
+        <li>🌧️ Байгаль дахь усны эргэлтийг тайлбарлана</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Бөөмс -->
+<section class="slide" data-name="Хатуу, шингэн, хий гэж юу вэ?" data-min="5"
+  data-notes="Сурах бичгийн х.30-ын тоосгоны зургийг санагдуулна: хатуу — тоосго нягт өрөгдсөн, шингэн — овоолсон, хий — тарсан.|Температурын гулсуурыг аажмаар хөдөлгөж, бөөмс хэрхэн хөдөлж байгааг ажиглуулна.|Асуулт: Хийн бөөмс яагаад савыг бүхэлд нь дүүргэж байна вэ?">
+  <div class="inner">
+    <h2>🔬 Хатуу, шингэн, хий гэж юу вэ?</h2>
+    <p class="sub">Бүх юм маш жижиг <b>бөөмсөөс</b> тогтдог. Халаахад бөөмс хурдан хөдөлдөг. Гулсуурыг хөдөлгөж туршаад үзээрэй!</p>
+    <div class="grid2" style="grid-template-columns:1fr 1fr;align-items:start">
+      <div>
+        <div class="row" style="justify-content:space-between;margin-bottom:34px">
+          <span class="state-badge" id="pBadge">🧊 Хатуу</span>
+          <span style="font-size:30px;font-weight:800" id="pTemp">-10°C</span>
+        </div>
+        <div class="jar"><span class="lid">сав</span><canvas id="pbox"></canvas></div>
+        <input type="range" class="trange" id="pRange" min="-20" max="130" value="-10" aria-label="Температур">
+        <div class="tlabels"><span>❄️ Хүйтэн</span><span>0°C</span><span>100°C</span><span>🔥 Халуун</span></div>
+        <div class="row" style="margin-top:8px;justify-content:center">
+          <button class="btn solid" data-pt="-10">🧊 Хатуу</button>
+          <button class="btn" data-pt="45">💧 Шингэн</button>
+          <button class="btn gas" data-pt="120">💨 Хий</button>
+        </div>
+      </div>
+      <table class="props" id="props">
+        <tr><th></th><th>🧊 Хатуу</th><th>💧 Шингэн</th><th>💨 Хий</th></tr>
+        <tr><td>Хэлбэр</td><td>Өөрийн тогтсон хэлбэртэй</td><td>Савныхаа хэлбэрийг авна</td><td>Тогтсон хэлбэргүй</td></tr>
+        <tr><td>Урсах уу?</td><td>Урсахгүй</td><td>Урсана</td><td>Бүх зүгт тархана</td></tr>
+        <tr><td>Бөөмс</td><td>Нягт, байрандаа чичирнэ</td><td>Ойрхон, бие биеэ даган гулсана</td><td>Хол хол, хурдан нисэлдэнэ</td></tr>
+        <tr><td>Тоосгоор</td><td>🧱 нягт өрсөн</td><td>🧱 овоолсон</td><td>🧱 тарааж хаясан</td></tr>
+        <tr><td>Жишээ</td><td>Мөс, чулуу, хонх</td><td>Ус, сүү, шүүс</td><td>Агаар, усны уур</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Ангилах -->
+<section class="slide" data-name="Ангилж үзье!" data-min="4"
+  data-notes="Сурах бичгийн х.30-ын 1-р даалгавар (ундааны сав, шүүс, бөмбөлөг доторх агаар, хонх, бороо) дээр нэмэлт зүйлс оруулсан.|Зүйл дээр дараад, дараа нь зөв хайрцаг дээр дарна (эсвэл хулганаар чирж оруулна).|Сурагчдыг ээлжлэн гаргаж ангилуулна.">
+  <div class="inner">
+    <h2>🧺 Хатуу уу, шингэн үү, хий юү?</h2>
+    <p class="sub">Зүйл дээр дараад, тохирох хайрцаг дээр дараарай (эсвэл чирж оруулаарай).</p>
+    <div class="tray" id="tray"></div>
+    <div class="bins">
+      <div class="bin s" data-bin="s"><h3>🧊 Хатуу</h3><div class="in"></div></div>
+      <div class="bin l" data-bin="l"><h3>💧 Шингэн</h3><div class="in"></div></div>
+      <div class="bin g" data-bin="g"><h3>💨 Хий</h3><div class="in"></div></div>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:10px">
+      <div class="feedback" id="sFb"></div>
+      <div class="row"><span class="score">⭐ <span id="sScore">0</span>/12</span><button class="btn ghost" id="sReset">↺ Дахин</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Усны лаборатори -->
+<section class="slide" data-name="Ус хэрхэн хувирдаг вэ?" data-min="6"
+  data-notes="Сурах бичгийн х.31, 35-ын туршилт: мөсийг халааж ус, усыг буцалгаж уур болгоно. Хүйтэн таваг тавихад уур дахин ус болно (конденсаци).|Дараалал: 🔥 Халаах → мөс хайлна → ус буцална → 🍽️ Хүйтэн таваг тавина → ❄️ Хөргөх → ус хөлдөнө.|Баруун талын бүдүүвчид тухайн үед явагдаж буй үзэгдэл тодорч харагдана.|Хүйтэн тавгийг аваад буцалгавал уур агаарт тарж, ус багасна гэдгийг харуулж болно.">
+  <div class="inner">
+    <h2>🧪 Ус хэрхэн хувирдаг вэ?</h2>
+    <div class="lab-wrap">
+      <div class="lab">
+        <canvas id="lab" width="900" height="600"></canvas>
+        <div class="ctrl">
+          <button class="btn heat" id="lHeat">🔥 Халаах</button>
+          <button class="btn ghost" id="lStop">⏸ Зогсоох</button>
+          <button class="btn cool" id="lCool">❄️ Хөргөх</button>
+          <button class="btn ghost" id="lPlate">🍽️ Таваг тавих</button>
+          <button class="btn ghost" id="lReset">↺ Дахин</button>
+        </div>
+      </div>
+      <div>
+        <div class="card cycle">
+          <div class="proc" id="lProc">🧊 Мөс — хатуу төлөв</div>
+          <svg viewBox="0 0 520 260" id="cyc">
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ff5a36"/></marker>
+              <marker id="ac" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#22b2f0"/></marker>
+            </defs>
+            <g class="arr" id="aMelt"><path d="M95 95 Q175 30 255 95" fill="none" stroke="#ff5a36" stroke-width="5" marker-end="url(#ah)"/><text x="175" y="40" text-anchor="middle" font-size="21" font-weight="800" fill="#d83c1b">Хайлах</text></g>
+            <g class="arr" id="aBoil"><path d="M285 95 Q365 30 445 95" fill="none" stroke="#ff5a36" stroke-width="5" marker-end="url(#ah)"/><text x="365" y="40" text-anchor="middle" font-size="21" font-weight="800" fill="#d83c1b">Уурших</text></g>
+            <g class="arr" id="aFreeze"><path d="M255 165 Q175 230 95 165" fill="none" stroke="#22b2f0" stroke-width="5" marker-end="url(#ac)"/><text x="175" y="244" text-anchor="middle" font-size="21" font-weight="800" fill="#0d86bd">Хөлдөх</text></g>
+            <g class="arr" id="aCond"><path d="M445 165 Q365 230 285 165" fill="none" stroke="#22b2f0" stroke-width="5" marker-end="url(#ac)"/><text x="365" y="244" text-anchor="middle" font-size="21" font-weight="800" fill="#0d86bd">Конденсаци</text></g>
+            <g font-weight="800" text-anchor="middle">
+              <circle cx="75" cy="130" r="48" fill="#dcf6fb" stroke="#00a3c4" stroke-width="4"/><text x="75" y="128" font-size="34">🧊</text><text x="75" y="158" font-size="17" fill="#007f99">Мөс</text>
+              <circle cx="270" cy="130" r="48" fill="#e3ebff" stroke="#2f6bff" stroke-width="4"/><text x="270" y="128" font-size="34">💧</text><text x="270" y="158" font-size="17" fill="#1d4fd1">Ус</text>
+              <circle cx="465" cy="130" r="48" fill="#f0e8ff" stroke="#9a63f5" stroke-width="4"/><text x="465" y="128" font-size="34">♨️</text><text x="465" y="158" font-size="17" fill="#7440d6">Уур</text>
+            </g>
+            <text x="12" y="20" font-size="15" font-weight="800" fill="#d83c1b">🔥 халаахад</text>
+            <text x="12" y="252" font-size="15" font-weight="800" fill="#0d86bd">❄️ хөргөхөд</text>
+          </svg>
+        </div>
+        <div class="def h"><b class="h-c">Хайлах</b> — хатуу ➜ шингэн (мөс ➜ ус)</div>
+        <div class="def h"><b class="h-c">Уурших</b> — шингэн ➜ хий (ус ➜ уур)</div>
+        <div class="def" style="background:var(--cool-soft)"><b class="c-c">Конденсаци</b> — хий ➜ шингэн (уур ➜ ус)</div>
+        <div class="def" style="background:var(--cool-soft)"><b class="c-c">Хөлдөх</b> — шингэн ➜ хатуу (ус ➜ мөс)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. Амьдралд -->
+<section class="slide" data-name="Амьдралд хаана тохиолддог вэ?" data-min="3"
+  data-notes="Нөхцөл байдал бүрийг уншаад, ангиараа ямар үзэгдэл болохыг хэлүүлсний дараа товчийг дарна.|Шалбааг хатах жишээн дээр сурах бичгийн х.33-ын Тэмүжин, Ану хоёрын яриаг сануулна.">
+  <div class="inner">
+    <h2>🏠 Амьдралд хаана тохиолддог вэ?</h2>
+    <p class="sub">Энд ямар үзэгдэл болж байна вэ? Зөв хариултыг сонгоорой.</p>
+    <div class="card">
+      <div class="sit"><div class="pic" id="dPic">🍦</div><div><div class="txt" id="dTxt"></div><div class="muted" id="dSub"></div></div></div>
+      <div class="popts" id="dOpts">
+        <button class="btn heat" data-p="melt">🔥 Хайлах</button>
+        <button class="btn heat" data-p="evap">☀️ Уурших</button>
+        <button class="btn cool" data-p="cond">💦 Конденсаци</button>
+        <button class="btn cool" data-p="freeze">❄️ Хөлдөх</button>
+      </div>
+      <div class="feedback" id="dFb"></div>
+      <div class="row" style="justify-content:space-between">
+        <span class="score">⭐ <span id="dScore">0</span> / <span id="dTot">0</span></span>
+        <button class="btn sun" id="dNext">Дараах ▶</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. Туршилт -->
+<section class="slide" data-name="Туршилт: Усны дусал хаанаас үүссэн бэ?" data-min="4"
+  data-notes="Сурах бичгийн х.34-ийн туршилт. Боломжтой бол ангид жинхэнэ мөстэй аягаар зэрэг хийнэ.|“Ажиглах” товч 10 минутыг 10 секундэд үзүүлнэ.|Гол санаа: дусал өнгөгүй — учир нь аяганы доторх будагтай ус биш, агаар дахь усны уур хөрж ус болсон (конденсаци).">
+  <div class="inner">
+    <h2>🔍 Усны дусал хаанаас үүссэн бэ?</h2>
+    <div class="grid2" style="grid-template-columns:.9fr 1.1fr;align-items:start">
+      <div class="card">
+        <h3>🧪 Туршилт</h3>
+        <p style="margin:0 0 6px"><b>Хэрэглэгдэх зүйлс:</b> төмөр ба шилэн аяга, мөс, ус, хүнсний будаг</p>
+        <ol class="steps">
+          <li>Аяганд дүүртэл нь мөс хийнэ.</li>
+          <li>Мөсөн дээр ус нэмнэ.</li>
+          <li>Хүнсний будаг дуслаана.</li>
+          <li>10 минут аяганы ханыг ажиглана.</li>
+        </ol>
+        <div class="note" id="eQ">❓ Аяганы <b>гадна талд</b> үүссэн дусал ямар өнгөтэй байх вэ?
+          <div class="row" style="margin-top:8px">
+            <button class="btn ghost" data-e="0">🩷 Будагтай адил</button>
+            <button class="btn ghost" data-e="1">🤍 Өнгөгүй</button>
+          </div>
+          <div class="feedback" id="eFb"></div>
+        </div>
+      </div>
+      <div>
+        <div class="exp-stage" id="expStage">
+          <div class="clock" id="eClock">⏱ 0 мин</div>
+          <div class="cup metal" id="cupM"><div class="lbl">Төмөр аяга</div></div>
+          <div class="cup glass" id="cupG"><div class="liq"></div><div class="lbl">Шилэн аяга</div></div>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:12px">
+          <button class="btn" id="eRun">▶ Ажиглах (10 минут)</button>
+          <button class="btn ghost" id="eReset">↺ Дахин</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. Усны эргэлт -->
+<section class="slide" data-name="Байгаль дахь усны эргэлт" data-min="4"
+  data-notes="Сурах бичгийн х.35. Бичлэгийг тоглуулаад, А, Б, В, Г товчоор хэсэг бүр рүү буцаж очиж тайлбарлана.|А — ууршилт, Б — үүл үүсэх (конденсаци), В — тунадас буух, Г — гол мөрнөөр далайдаа буцах.">
+  <div class="inner">
+    <h2>🌧️ Байгаль дахь усны эргэлт</h2>
+    <div class="grid2" style="grid-template-columns:1.4fr .6fr">
+      <div>
+        <div class="vid" id="vid2"></div>
+        <div class="chap" id="chap">
+          <button class="btn heat" data-c="0">А. Ууршилт</button>
+          <button class="btn gas" data-c="1">Б. Үүл</button>
+          <button class="btn" data-c="2">В. Тунадас</button>
+          <button class="btn solid" data-c="3">Г. Буцаж урсах</button>
+        </div>
+      </div>
+      <div class="card">
+        <h3>♻️ Усны эргэлт</h3>
+        <div class="def h"><b class="h-c">А.</b> Нар далайн усыг халааж, ус <b>ууршина</b>.</div>
+        <div class="def g"><b class="g-c">Б.</b> Уур дээшээ хөрч, дуслууд нийлж <b>үүл</b> болно.</div>
+        <div class="def l"><b class="l-c">В.</b> Үүлнээс бороо, цас — <b>тунадас</b> бууна.</div>
+        <div class="def s"><b class="s-c">Г.</b> Ус гол мөрнөөр урсаж <b>далайдаа</b> буцна.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 10. Тест -->
+<section class="slide" data-name="Шалгацгаая!" data-min="3"
+  data-notes="Асуулт бүрийг ангиараа уншаад, гараа өргөж хариулсны дараа сонголтыг дарна.|Багаар өрсөлдүүлж болно (4 баг = 4 өнгө).">
+  <div class="inner" id="quiz"></div>
+</section>
+
+<!-- 11. Шинээр мэдэж авлаа -->
+<section class="slide" data-name="Шинээр юу мэдэж авсан бэ?" data-min="2"
+  data-notes="Хичээлийн эхэнд бичсэн 2 баганыг ангиараа уншина.|Хүүхдүүдийн шинээр сурсан зүйлийг ягаан баганад бичнэ.">
+  <div class="inner">
+    <h2>🌟 Бид шинээр юу мэдэж авсан бэ?</h2>
+    <p class="sub">Хичээлийн эхэнд юу мэддэг, юу мэдэхийг хүсэж байснаа санацгаая. Одоо шинээр юу сурснаа <b class="g-c">сүүлийн баганад</b> бичээрэй.</p>
+    <table class="kwl end">
+      <tr><th>✅ Би мэднэ</th><th>❓ Мэдэхийг хүсэж байна</th><th>🌟 Шинээр мэдэж авлаа</th></tr>
+      <tr>
+        <td><div class="ro" data-mirror="sl_kwl1"></div></td>
+        <td><div class="ro" data-mirror="sl_kwl2"></div></td>
+        <td><div contenteditable="true" data-k="sl_kwl3" data-ph="Жишээ нь: Уурыг хөргөхөд ус болдог — конденсаци…"></div></td>
+      </tr>
+    </table>
+  </div>
+</section>
+
+<!-- 12. Дүгнэлт -->
+<section class="slide" data-name="Бид юу сурсан бэ?" data-min="2"
+  data-notes="Гол санааг ангиараа давтана.|Гэрлэн дохиогоор сурагчид өөрсдийгөө үнэлнэ.|Гэрийн даалгаврыг (сурах бичгийн х.35) өгнө.">
+  <div class="inner">
+    <h2>🎉 Бид өнөөдөр юу сурсан бэ?</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>📚 Гол санаа</h3>
+        <ul class="goals">
+          <li>Бодис <b>хатуу</b>, <b>шингэн</b>, <b>хий</b> гэсэн төлөвтэй.</li>
+          <li>🔥 Халаахад: мөс <b>хайлж</b> ус, ус <b>ууршиж</b> уур болно.</li>
+          <li>❄️ Хөргөхөд: уур <b>конденсацид</b> орж ус, ус <b>хөлдөж</b> мөс болно.</li>
+          <li>Байгальд ус байнга <b>эргэлдэж</b> байдаг.</li>
+        </ul>
+        <div class="note">🏠 <b>Гэрийн даалгавар:</b> «Байгаль дахь усны эргэлт» сэдвээр нар, үүл, далай, ууршилт, конденсаци, тунадас гэсэн үгсийг ашиглан богино эх зохиогоорой.</div>
+      </div>
+      <div class="card">
+        <h3>🚦 Өнөөдрийн хичээлийг би…</h3>
+        <div class="lights">
+          <button class="light" data-l="g"><div class="e">🟢</div>Сайн ойлгосон<div class="n">0</div></button>
+          <button class="light" data-l="y"><div class="e">🟡</div>Бага зэрэг ойлгосон<div class="n">0</div></button>
+          <button class="light" data-l="r"><div class="e">🔴</div>Тусламж хэрэгтэй<div class="n">0</div></button>
+        </div>
+        <p class="muted" style="font-size:17px">Сурагч бүр өөрийн өнгөн дээр нэг удаа дарна.</p>
+        <button class="btn ghost" id="lReset2">↺ Тэглэх</button>
+        <p style="font-family:var(--hfont);font-size:26px;font-weight:700;text-align:center;margin:16px 0 0;color:var(--liquid-d)">Баярлалаа! Усаа хайрлан хамгаалъя 💧💙</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<nav class="nav">
+  <button class="btn" id="prevBtn">◀ Өмнөх</button>
+  <div class="dots" id="dots"></div>
+  <button class="btn" id="nextBtn">Дараах ▶</button>
+</nav>
+
+<div class="tnotes" id="tnotes"><h4>📝 Багшид зориулсан зөвлөмж</h4><ul id="tnList"></ul></div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* ---------- Helpers ---------- */
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const shuffle=a=>[...a].sort(()=>Math.random()-.5);
+const kwlMem={};
+
+/* ---------- Bubbles ---------- */
+(()=>{const b=$('bubbles');for(let i=0;i<16;i++){const s=document.createElement('span'),d=rnd(10,34);s.style.cssText=`left:${rnd(0,100)}%;width:${d}px;height:${d}px;animation-duration:${rnd(14,30)}s;animation-delay:${-rnd(0,30)}s`;b.appendChild(s)}})();
+
+/* ---------- Slides ---------- */
+const slides=[...document.querySelectorAll('.slide')];
+const dots=$('dots');let cur=0;const loops={};
+slides.forEach((s,i)=>{const b=document.createElement('button');b.className='dot';b.innerHTML='<span>'+(i+1)+'</span>';b.title=s.dataset.name;b.onclick=()=>go(i);dots.appendChild(b)});
+function go(i){
+  cur=Math.max(0,Math.min(slides.length-1,i));
+  slides.forEach((s,j)=>s.classList.toggle('active',j===cur));
+  [...dots.children].forEach((d,j)=>{d.classList.toggle('on',j===cur);d.classList.toggle('done',j<cur)});
+  const s=slides[cur];
+  $('stageName').textContent=(cur+1)+'. '+s.dataset.name;
+  $('progress').style.width=((cur+1)/slides.length*100)+'%';
+  $('tnList').innerHTML='<li>⏱ Зөвлөмж хугацаа: ≈'+s.dataset.min+' мин</li>'+s.dataset.notes.split('|').map(t=>'<li>'+t+'</li>').join('');
+  $('prevBtn').disabled=cur===0;
+  $('nextBtn').textContent=cur===slides.length-1?'🏁 Төгсгөл':'Дараах ▶';
+  s.querySelectorAll('[data-mirror]').forEach(m=>m.textContent=kwlMem[m.dataset.mirror]||'');
+  videos.forEach(v=>{if(!s.contains(v.el))v.pause()});
+  if(s.contains($('pbox')))setTimeout(pSize,60);
+}
+$('prevBtn').onclick=()=>go(cur-1);$('nextBtn').onclick=()=>go(cur+1);
+document.addEventListener('keydown',e=>{
+  if(e.target.isContentEditable||e.target.tagName==='INPUT')return;
+  if(e.key==='ArrowRight'||e.key==='PageDown')go(cur+1);
+  else if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+  else if(e.key==='f'||e.key==='F')toggleFS();
+  else if(e.key==='n'||e.key==='N')toggleNotes();
+});
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+function toggleNotes(){$('tnotes').classList.toggle('show')}
+$('fsBtn').onclick=toggleFS;$('notesBtn').onclick=toggleNotes;
+const isActive=el=>slides[cur].contains(el);
+
+/* ---------- Timer ---------- */
+let remain=40*60,running=false,tick=null;
+function drawT(){const a=Math.abs(remain),m=Math.floor(a/60),s=a%60;$('tval').textContent=(remain<0?'+':'')+m+':'+String(s).padStart(2,'0');$('timer').className='timer'+(remain<0?' over':remain<=300?' warn':'')}
+$('tPlay').onclick=()=>{running=!running;$('tPlay').textContent=running?'⏸ Зогсоох':'▶ Үргэлжлүүлэх';if(running)tick=setInterval(()=>{remain--;drawT()},1000);else clearInterval(tick)};
+$('timer').ondblclick=()=>{remain=40*60;drawT()};drawT();
+
+/* ---------- KWL ---------- */
+document.querySelectorAll('[data-k]').forEach(el=>{const k=el.dataset.k;kwlMem[k]=store.get(k)||'';el.textContent=kwlMem[k];el.addEventListener('input',()=>{kwlMem[k]=el.innerText;store.set(k,kwlMem[k])})});
+
+/* ================= Video engine ================= */
+const videos=[];const VW=1280,VH=720;
+const ease=k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+const clamp01=v=>Math.max(0,Math.min(1,v));
+function vCaption(ctx,text,a=1){
+  if(!text)return;ctx.save();ctx.globalAlpha=a;ctx.font='700 38px Rubik, sans-serif';
+  const w=ctx.measureText(text).width+70,h=74,x=(VW-w)/2,y=VH-h-24;
+  ctx.fillStyle='rgba(255,255,255,.93)';ctx.beginPath();ctx.roundRect(x,y,w,h,37);ctx.fill();
+  ctx.lineWidth=4;ctx.strokeStyle='#2f6bff';ctx.stroke();
+  ctx.fillStyle='#16284a';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,VW/2,y+h/2+2);ctx.restore();
+}
+function vText(ctx,t,x,y,size,color,stroke='#fff'){ctx.save();ctx.font=`700 ${size}px Rubik, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=size/5;ctx.strokeStyle=stroke;ctx.strokeText(t,x,y);ctx.fillStyle=color;ctx.fillText(t,x,y);ctx.restore()}
+function emoji(ctx,e,x,y,size){ctx.save();ctx.font=`${size}px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(e,x,y);ctx.restore()}
+function face(ctx,x,y,s,mood=1){ctx.save();ctx.fillStyle='#16284a';ctx.beginPath();ctx.arc(x-s*.28,y-s*.08,s*.08,0,7);ctx.arc(x+s*.28,y-s*.08,s*.08,0,7);ctx.fill();
+  ctx.strokeStyle='#16284a';ctx.lineWidth=s*.06;ctx.lineCap='round';ctx.beginPath();ctx.arc(x,y+s*.05,s*.22,.15*Math.PI,.85*Math.PI);ctx.stroke();
+  ctx.fillStyle='rgba(255,120,150,.45)';ctx.beginPath();ctx.arc(x-s*.42,y+s*.12,s*.09,0,7);ctx.arc(x+s*.42,y+s*.12,s*.09,0,7);ctx.fill();ctx.restore()}
+function iceCube(ctx,x,y,s,faceOn=true){ctx.save();
+  const g=ctx.createLinearGradient(x-s/2,y-s/2,x+s/2,y+s/2);g.addColorStop(0,'#e9fbff');g.addColorStop(1,'#7fd7ef');
+  ctx.fillStyle=g;ctx.strokeStyle='#4cc0de';ctx.lineWidth=Math.max(2,s*.04);ctx.beginPath();ctx.roundRect(x-s/2,y-s/2,s,s,s*.18);ctx.fill();ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.roundRect(x-s*.36,y-s*.38,s*.22,s*.1,s*.05);ctx.fill();
+  if(faceOn&&s>40)face(ctx,x,y+s*.05,s*.8);ctx.restore()}
+function sky(ctx,top='#bfe6ff',bot='#eef9ff'){const g=ctx.createLinearGradient(0,0,0,VH);g.addColorStop(0,top);g.addColorStop(1,bot);ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH)}
+function sunDraw(ctx,x,y,r,T){ctx.save();ctx.translate(x,y);ctx.rotate(T*.3);ctx.strokeStyle='#ffb700';ctx.lineWidth=8;ctx.lineCap='round';for(let i=0;i<12;i++){ctx.rotate(Math.PI/6);ctx.beginPath();ctx.moveTo(r+12,0);ctx.lineTo(r+34,0);ctx.stroke()}ctx.restore();
+  const g=ctx.createRadialGradient(x-r*.3,y-r*.3,5,x,y,r);g.addColorStop(0,'#fff3a0');g.addColorStop(1,'#ffbf1f');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+function cloud(ctx,x,y,s,col='#fff'){ctx.save();ctx.fillStyle=col;ctx.beginPath();[[0,0,.5],[.45,-.18,.42],[.85,.02,.38],[-.42,.06,.36],[.3,.2,.4]].forEach(([dx,dy,r])=>{ctx.moveTo(x+dx*s+r*s,y+dy*s);ctx.arc(x+dx*s,y+dy*s,r*s,0,7)});ctx.fill();ctx.restore()}
+function puff(ctx,x,y,r,a){ctx.save();ctx.globalAlpha=a;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.arc(x+r*.7,y+r*.2,r*.7,0,7);ctx.arc(x-r*.7,y+r*.25,r*.65,0,7);ctx.fill();ctx.restore()}
+function dropShape(ctx,x,y,s,col='#4f8dff'){ctx.save();ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y-s);ctx.bezierCurveTo(x+s*.9,y,x+s*.6,y+s*.8,x,y+s*.8);ctx.bezierCurveTo(x-s*.6,y+s*.8,x-s*.9,y,x,y-s);ctx.fill();ctx.restore()}
+
+function makeVideo(el,scenes,fileName){
+  el.innerHTML=`<canvas width="${VW}" height="${VH}"></canvas><div class="vbar"><button class="pp">▶ Тоглуулах</button><button class="rs" title="Эхнээс нь">⏮</button><div class="vprog"><i></i></div><span class="vtime">0:00 / 0:00</span><button class="dl" title="Видео файл болгон татах">⬇ Татах</button><button class="fs" title="Томруулах">⛶</button></div>`;
+  const cv=el.querySelector('canvas'),ctx=cv.getContext('2d'),pp=el.querySelector('.pp'),bar=el.querySelector('.vprog i'),tm=el.querySelector('.vtime'),dl=el.querySelector('.dl');
+  const total=scenes.reduce((a,s)=>a+s.d,0),starts=[];scenes.reduce((a,s)=>(starts.push(a),a+s.d),0);
+  const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
+  let t=0,playing=false,last=0,rec=null;
+  function render(){
+    let i=scenes.length-1;for(let j=0;j<scenes.length;j++){if(t<starts[j]+scenes[j].d){i=j;break}}
+    const sc=scenes[i],lt=Math.min(sc.d,t-starts[i]),k=lt/sc.d;
+    ctx.save();sc.draw(ctx,k,t,lt);ctx.restore();
+    vCaption(ctx,typeof sc.cap==='function'?sc.cap(k):sc.cap,Math.min(1,lt/.4));
+    const edge=Math.min(lt,sc.d-lt);if(edge<.3&&t>.05&&t<total-.05){ctx.fillStyle=`rgba(255,255,255,${(1-edge/.3)*.85})`;ctx.fillRect(0,0,VW,VH)}
+    bar.style.width=(t/total*100)+'%';tm.textContent=fmt(t)+' / '+fmt(total);
+  }
+  function loop(ts){if(!playing)return;t+=Math.min(.1,(ts-last)/1000);last=ts;if(t>=total){t=total;render();pause();if(rec)rec.stop();return}render();requestAnimationFrame(loop)}
+  function play(){if(t>=total)t=0;playing=true;pp.textContent='⏸ Зогсоох';last=performance.now();requestAnimationFrame(loop)}
+  function pause(){playing=false;pp.textContent='▶ Тоглуулах'}
+  pp.onclick=()=>playing?pause():play();cv.onclick=()=>playing?pause():play();
+  el.querySelector('.rs').onclick=()=>{t=0;render();if(!playing)play()};
+  el.querySelector('.vprog').onclick=e=>{const r=e.currentTarget.getBoundingClientRect();t=(e.clientX-r.left)/r.width*total;render()};
+  el.querySelector('.fs').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else el.requestFullscreen?.()};
+  if(!(cv.captureStream&&window.MediaRecorder))dl.style.display='none';
+  dl.onclick=()=>{
+    if(rec)return;const mime=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'].find(m=>MediaRecorder.isTypeSupported(m));
+    const chunks=[];rec=new MediaRecorder(cv.captureStream(30),mime?{mimeType:mime,videoBitsPerSecond:6e6}:undefined);
+    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+    rec.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));a.download=fileName;document.body.appendChild(a);a.click();a.remove();rec=null;dl.textContent='⬇ Татах'};
+    dl.textContent='⏺ Бичиж байна…';rec.start();t=0;play();
+  };
+  const api={el,pause,render,seekScene(i){t=starts[i]+.35;render();if(!playing)play()}};videos.push(api);
+  document.fonts?.ready.then(render);render();return api;
+}
+
+/* ---------- Video 1: Усны гайхалтай аялал ---------- */
+makeVideo($('vid1'),[
+  {d:6,cap:'Сайн уу! Би мөс — хатуу биет 🧊',draw(ctx,k,T){
+    sky(ctx,'#cdeeff','#f2fbff');
+    for(let i=0;i<14;i++){emoji(ctx,'❄️',(i*97+T*30)%VW,(i*53+T*40*(1+i%3))%VH,26)}
+    iceCube(ctx,VW/2,VH*.45+Math.sin(T*3)*10,230);
+  }},
+  {d:7,cap:k=>k<.4?'Нар гарч, дулаахан боллоо ☀️':'Би хайлж УС боллоо! 💧',draw(ctx,k,T){
+    sky(ctx,'#ffe9b0','#fff8e6');sunDraw(ctx,170,140,80,T);
+    ctx.fillStyle='#e6d2b0';ctx.fillRect(0,VH*.72,VW,VH);
+    const m=clamp01((k-.15)/.75),s=230*(1-m*.85);
+    const pw=60+m*420,g=ctx.createRadialGradient(VW/2,VH*.72,10,VW/2,VH*.72,pw);g.addColorStop(0,'#7fb2ff');g.addColorStop(1,'#3f7cff');
+    ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(VW/2,VH*.73,pw,pw*.16+8,0,0,7);ctx.fill();
+    if(s>20)iceCube(ctx,VW/2,VH*.72-s/2,s,s>70);
+    if(m>.7){face(ctx,VW/2,VH*.73,70)}
+  }},
+  {d:8,cap:k=>k<.45?'Намайг тогоонд хийж буцалгав 🔥':'Би УУР болж дээшээ нислээ ♨️',draw(ctx,k,T){
+    sky(ctx,'#ffe4dc','#fff6f2');
+    ctx.fillStyle='#5b6474';ctx.fillRect(VW/2-260,VH*.78,520,40);
+    for(let i=0;i<7;i++){const fx=VW/2-150+i*50,fh=40+Math.sin(T*12+i)*14;ctx.fillStyle='#ff7a2e';ctx.beginPath();ctx.moveTo(fx-18,VH*.78);ctx.quadraticCurveTo(fx,VH*.78-fh*1.4,fx+18,VH*.78);ctx.fill();ctx.fillStyle='#ffd23f';ctx.beginPath();ctx.moveTo(fx-9,VH*.78);ctx.quadraticCurveTo(fx,VH*.78-fh*.8,fx+9,VH*.78);ctx.fill()}
+    ctx.fillStyle='#9aa6b8';ctx.beginPath();ctx.roundRect(VW/2-220,VH*.5,440,200,[0,0,40,40]);ctx.fill();
+    ctx.fillStyle='#3f7cff';ctx.fillRect(VW/2-205,VH*.53,410,22);
+    for(let i=0;i<10;i++){const bx=VW/2-190+((i*73+T*60)%380),by=VH*.54-((T*80+i*20)%10);ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.arc(bx,by,6,0,7);ctx.fill()}
+    for(let i=0;i<16;i++){const p=(T*.35+i/16)%1,x=VW/2-180+(i*61)%360+Math.sin(T*2+i)*20,y=VH*.5-p*330;puff(ctx,x,y,22+p*26,(1-p)*.85*clamp01(k*3))}
+    if(k>.45){const y=VH*.2-Math.sin(T*2)*8;puff(ctx,VW/2,y,60,.95);face(ctx,VW/2,y+6,70)}
+  }},
+  {d:7,cap:'Хүйтэн тагтай мөргөлдөөд дахин УС боллоо 💦',draw(ctx,k,T){
+    sky(ctx,'#dff4ff','#f4fbff');
+    ctx.fillStyle='#a9c9e6';ctx.beginPath();ctx.roundRect(VW/2-300,VH*.24,600,26,13);ctx.fill();
+    emoji(ctx,'❄️',VW/2-330,VH*.25,40);emoji(ctx,'❄️',VW/2+330,VH*.25,40);
+    for(let i=0;i<10;i++){const p=(T*.5+i/10)%1,x=VW/2-250+i*55,y=VH*.75-p*(VH*.47);puff(ctx,x,y,18+p*10,(1-p)*.7)}
+    const n=Math.floor(k*14);for(let i=0;i<n;i++){const x=VW/2-270+i*40,grow=Math.min(1,(k*14-i)/2);dropShape(ctx,x,VH*.24+40,12*grow+4,'#4f8dff')}
+    for(let i=0;i<4;i++){const p=((T*.8)+i*.25)%1;if(k>.4)dropShape(ctx,VW/2-200+i*130,VH*.3+p*VH*.45,14,'#3f7cff')}
+    ctx.fillStyle='#3f7cff';ctx.beginPath();ctx.ellipse(VW/2,VH*.8,280,30,0,0,7);ctx.fill();
+  }},
+  {d:7,cap:k=>k<.5?'Намайг хөлдөөгчид хийлээ ❄️':'Би дахин МӨС боллоо! Хөлдөх гэж ийм 🧊',draw(ctx,k,T){
+    sky(ctx,'#b9e3ff','#e6f6ff');
+    ctx.fillStyle='#ffffff';ctx.strokeStyle='#8fbbe0';ctx.lineWidth=8;ctx.beginPath();ctx.roundRect(VW/2-300,VH*.12,600,VH*.68,30);ctx.fill();ctx.stroke();
+    for(let i=0;i<10;i++)emoji(ctx,'❄️',VW/2-260+(i*57)%520,VH*.18+((i*83+T*50)%(VH*.55)),28);
+    const f=clamp01((k-.2)/.6);
+    ctx.fillStyle=`rgb(${63+f*120},${124+f*90},255)`;ctx.beginPath();ctx.roundRect(VW/2-200,VH*.55,400,90,20);ctx.fill();
+    if(f>.98)iceCube(ctx,VW/2,VH*.45,200);else if(f>.5){ctx.globalAlpha=(f-.5)*2;iceCube(ctx,VW/2,VH*.45,200);ctx.globalAlpha=1}
+  }},
+  {d:5,cap:'Ус ямар ямар төлөвт орж чадах вэ? 🤔',draw(ctx,k,T){
+    sky(ctx,'#e7f3ff','#ffffff');
+    const items=[['🧊','Хатуу','#007f99'],['💧','Шингэн','#1d4fd1'],['♨️','Хий','#7440d6']];
+    items.forEach(([e,t,c],i)=>{const x=VW/2+(i-1)*360,y=VH*.4+Math.sin(T*3+i)*12;ctx.globalAlpha=clamp01(k*3-i*.4);emoji(ctx,e,x,y,150);vText(ctx,t,x,y+120,52,c);ctx.globalAlpha=1});
+    vText(ctx,'❓',VW/2,VH*.1,70,'#ff5a36');
+  }},
+],'Usny_gaikhaltai_ayalal.webm');
+
+/* ---------- Video 2: Усны эргэлт ---------- */
+function landscape(ctx,T){
+  sky(ctx,'#9fd8ff','#e9f7ff');
+  // mountains right
+  ctx.fillStyle='#7cbf6b';ctx.beginPath();ctx.moveTo(560,VH*.7);ctx.lineTo(820,250);ctx.lineTo(980,420);ctx.lineTo(1100,230);ctx.lineTo(VW,380);ctx.lineTo(VW,VH);ctx.lineTo(560,VH);ctx.fill();
+  ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(820,250);ctx.lineTo(780,305);ctx.lineTo(805,300);ctx.lineTo(825,315);ctx.lineTo(850,290);ctx.fill();
+  ctx.beginPath();ctx.moveTo(1100,230);ctx.lineTo(1060,285);ctx.lineTo(1090,278);ctx.lineTo(1110,292);ctx.lineTo(1135,268);ctx.fill();
+  // ground
+  ctx.fillStyle='#9bd47f';ctx.fillRect(480,VH*.7,VW,VH*.3);
+  // sea left
+  const g=ctx.createLinearGradient(0,VH*.68,0,VH);g.addColorStop(0,'#3f8cff');g.addColorStop(1,'#1d4fd1');ctx.fillStyle=g;
+  ctx.beginPath();ctx.moveTo(0,VH*.68);for(let x=0;x<=620;x+=20)ctx.lineTo(x,VH*.68+Math.sin(x/40+T*2)*6);ctx.lineTo(620,VH);ctx.lineTo(0,VH);ctx.fill();
+  vText(ctx,'Далай',220,VH*.79,34,'#fff','#1d4fd1');
+  // river
+  ctx.strokeStyle='#4f8dff';ctx.lineWidth=18;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(1040,330);ctx.bezierCurveTo(960,520,820,470,600,VH*.72);ctx.stroke();
+}
+function riverFlow(ctx,T,a=1){ctx.save();ctx.globalAlpha=a;for(let i=0;i<6;i++){const p=(T*.25+i/6)%1,x=1040*(1-p)**3+3*960*p*(1-p)**2+3*820*p*p*(1-p)+600*p**3,y=330*(1-p)**3+3*520*p*(1-p)**2+3*470*p*p*(1-p)+VH*.72*p**3;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x,y,5,0,7);ctx.fill()}ctx.restore()}
+makeVideo($('vid2'),[
+  {d:10,cap:'А. Нар далайн усыг халааж, ус ууршина ☀️',draw(ctx,k,T){
+    landscape(ctx,T);sunDraw(ctx,140,110,70,T);
+    for(let i=0;i<14;i++){const p=(T*.3+i/14)%1,x=60+(i*41)%520+Math.sin(T*2+i)*14,y=VH*.66-p*300;ctx.strokeStyle=`rgba(255,255,255,${(1-p)*.9})`;ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x,y);ctx.quadraticCurveTo(x+10,y-15,x,y-30);ctx.quadraticCurveTo(x-10,y-45,x,y-60);ctx.stroke()}
+    vText(ctx,'А',330,VH*.42,70,'#ff5a36');
+  }},
+  {d:9,cap:'Б. Уур хөрч, дуслууд нийлж үүл болно ☁️',draw(ctx,k,T){
+    landscape(ctx,T);sunDraw(ctx,140,110,70,T);
+    for(let i=0;i<8;i++){const p=(T*.3+i/8)%1,x=150+(i*53)%380,y=VH*.6-p*260;puff(ctx,x,y,8+p*8,(1-p)*.6)}
+    const s=40+ease(k)*90;cloud(ctx,380,180,s,'#ffffff');cloud(ctx,380,182,s*.98,'rgba(220,230,245,.6)');cloud(ctx,380,176,s*.96,'#ffffff');
+    vText(ctx,'Б',380,300,70,'#9a63f5');
+  }},
+  {d:10,cap:'В. Салхи үүлийг туугаад бороо, цас орно 🌧️',draw(ctx,k,T){
+    landscape(ctx,T);sunDraw(ctx,140,110,70,T);
+    const cx=380+ease(clamp01(k*1.6))*560;cloud(ctx,cx,170,130,'#c9d3e2');cloud(ctx,cx+20,165,120,'#dfe6f0');
+    emoji(ctx,'💨',cx-260,170,70);
+    if(k>.35){for(let i=0;i<40;i++){const p=(T*1.4+i/40)%1,x=cx-150+(i*37)%320,y=230+p*260;ctx.strokeStyle='#3f7cff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-6,y+18);ctx.stroke()}
+      for(let i=0;i<6;i++)emoji(ctx,'❄️',1060+((i*31)%120)-40,220+((T*60+i*40)%120),22)}
+    vText(ctx,'В',cx,90,70,'#2f6bff');
+  }},
+  {d:9,cap:'Г. Ус гол мөрнөөр урсаж далайдаа буцна 🏞️',draw(ctx,k,T){
+    landscape(ctx,T);sunDraw(ctx,140,110,70,T);cloud(ctx,940,160,90,'#e3eaf3');
+    riverFlow(ctx,T);
+    for(let i=0;i<4;i++){const p=(T*.5+i/4)%1;ctx.fillStyle='rgba(255,255,255,.7)';ctx.beginPath();ctx.arc(600-p*200,VH*.75,6,0,7);ctx.fill()}
+    vText(ctx,'Г',800,560,70,'#00a3c4');
+  }},
+  {d:7,cap:'Энэ бол усны эргэлт — дахин дахин үргэлжилнэ ♻️',draw(ctx,k,T){
+    landscape(ctx,T);sunDraw(ctx,140,110,70,T);cloud(ctx,700,150,100,'#fff');riverFlow(ctx,T);
+    ctx.save();ctx.strokeStyle='rgba(255,90,54,.9)';ctx.lineWidth=8;ctx.setLineDash([18,14]);ctx.lineDashOffset=-T*40;ctx.beginPath();ctx.ellipse(640,330,330,170,0,0,7);ctx.stroke();ctx.restore();
+    [['А',330,420,'#ff5a36'],['Б',560,160,'#9a63f5'],['В',930,250,'#2f6bff'],['Г',800,520,'#00a3c4']].forEach(([t,x,y,c])=>vText(ctx,t,x,y,56,c));
+  }},
+],'Usny_ergelt.webm');
+document.querySelectorAll('#chap [data-c]').forEach(b=>b.onclick=()=>videos[1].seekScene(+b.dataset.c));
+
+/* ================= Particles ================= */
+const pc=$('pbox'),px=pc.getContext('2d');let PW=0,PH=0,pT=-10;const NP=42;
+const P=Array.from({length:NP},()=>({x:0,y:0,vx:0,vy:0,hx:0,hy:0}));
+const stOf=T=>T<0?'s':T<100?'l':'g';
+const ST={s:{n:'🧊 Хатуу',c:'#00a3c4'},l:{n:'💧 Шингэн',c:'#2f6bff'},g:{n:'💨 Хий',c:'#9a63f5'}};
+let pInit=false;
+function pr(){return Math.max(7,Math.min(PW,PH)/24)}
+function pSize(){
+  const r=pc.getBoundingClientRect();if(!r.width)return;const d=devicePixelRatio||1;
+  pc.width=r.width*d;pc.height=r.height*d;px.setTransform(d,0,0,d,0,0);PW=r.width;PH=r.height;
+  const R=pr(),cols=7,gap=R*2.1,x0=PW/2-(cols-1)*gap/2,rows=Math.ceil(NP/cols),y0=PH-R-6-(rows-1)*gap;
+  P.forEach((p,i)=>{p.hx=x0+(i%cols)*gap;p.hy=y0+Math.floor(i/cols)*gap;if(!pInit){p.x=p.hx;p.y=p.hy}});pInit=true;
+}
+function pSet(T){pT=T;$('pRange').value=T;const s=stOf(T);$('pBadge').textContent=ST[s].n;$('pBadge').style.background=ST[s].c;$('pTemp').textContent=Math.round(T)+'°C';
+  document.querySelectorAll('#props tr').forEach((tr,i)=>{if(!i)return;[...tr.children].forEach((td,j)=>{if(!j)return;td.style.background=(j==={s:1,l:2,g:3}[s])?['','#dcf6fb','#e3ebff','#f0e8ff'][j]:'#fff'})})}
+$('pRange').oninput=e=>pSet(+e.target.value);
+document.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>pSet(+b.dataset.pt));
+function pStep(){
+  if(!PW)return;const s=stOf(pT),R=pr();
+  for(const p of P){
+    if(s==='s'){const a=.5+(pT+20)/20*1.4;p.x+=(p.hx-p.x)*.2+rnd(-a,a);p.y+=(p.hy-p.y)*.2+rnd(-a,a);p.vx=p.vy=0;continue}
+    if(s==='l'){const sp=.5+pT/70;p.vy+=.35;p.vx+=rnd(-sp,sp);p.vy+=rnd(-sp,sp)*.6;p.vx*=.95;p.vy*=.97}
+    else{const target=4+(pT-100)/12;p.vx+=rnd(-.3,.3);p.vy+=rnd(-.3,.3);const v=Math.hypot(p.vx,p.vy)||1;const f=v<target?1.08:.98;p.vx*=f;p.vy*=f}
+    p.x+=p.vx;p.y+=p.vy;
+    const e=s==='g'?1:.3;
+    if(p.x<R){p.x=R;p.vx=Math.abs(p.vx)*e}if(p.x>PW-R){p.x=PW-R;p.vx=-Math.abs(p.vx)*e}
+    if(p.y<R){p.y=R;p.vy=Math.abs(p.vy)*e}if(p.y>PH-R){p.y=PH-R;p.vy=-Math.abs(p.vy)*e}
+  }
+  if(s!=='s')for(let i=0;i<NP;i++)for(let j=i+1;j<NP;j++){const a=P[i],b=P[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||.01;if(d<2*R){const o=(2*R-d)/2,ux=dx/d,uy=dy/d;a.x-=ux*o;a.y-=uy*o;b.x+=ux*o;b.y+=uy*o;if(s==='g'){const t=a.vx;a.vx=b.vx;b.vx=t;const t2=a.vy;a.vy=b.vy;b.vy=t2}}}
+}
+function pDraw(){
+  px.clearRect(0,0,PW,PH);const s=stOf(pT),R=pr(),col=ST[s].c;
+  if(s==='s'){px.strokeStyle='rgba(0,163,196,.35)';px.lineWidth=3;for(let i=0;i<NP;i++)for(let j=i+1;j<NP;j++){const d=Math.hypot(P[i].hx-P[j].hx,P[i].hy-P[j].hy);if(d<R*2.3){px.beginPath();px.moveTo(P[i].x,P[i].y);px.lineTo(P[j].x,P[j].y);px.stroke()}}}
+  for(const p of P){const g=px.createRadialGradient(p.x-R*.35,p.y-R*.35,1,p.x,p.y,R);g.addColorStop(0,'#fff');g.addColorStop(.35,col);g.addColorStop(1,col);px.fillStyle=g;px.beginPath();px.arc(p.x,p.y,R,0,7);px.fill()}
+}
+pSet(-10);
+
+/* ================= Sorting game ================= */
+const ITEMS=[['🔔','Хонх','s'],['🥤','Ундааны сав','s'],['🧱','Тоосго','s'],['🧊','Мөс','s'],
+  ['🧃','Шүүс','l'],['🌧️','Бороо','l'],['🥛','Сүү','l'],['🍯','Зөгийн бал','l'],
+  ['🎈','Бөмбөлөг доторх агаар','g'],['♨️','Усны уур','g'],['🧼','Савангийн хөөс доторх агаар','g'],['🚲','Дугуйн доторх агаар','g']];
+const HINT={s:'Энэ зүйл өөрийн хэлбэрээ хадгалдаг уу? 🤔',l:'Энэ зүйлийг асгавал урсах уу? 🤔',g:'Энэ зүйлийг гараараа барьж болох уу? Хаа сайгүй тархдаг уу? 🤔'};
+let picked=null,sScore=0;
+function sBuild(){
+  const tray=$('tray');tray.innerHTML='';document.querySelectorAll('.bin .in').forEach(b=>b.innerHTML='');sScore=0;$('sScore').textContent=0;$('sFb').textContent='';picked=null;
+  shuffle(ITEMS).forEach(([e,n,t])=>{const c=document.createElement('div');c.className='chip';c.draggable=true;c.dataset.t=t;c.innerHTML=`<span class="e">${e}</span>${n}`;
+    c.onclick=()=>{document.querySelectorAll('.tray .chip').forEach(x=>x.classList.remove('picked'));picked=c;c.classList.add('picked')};
+    c.ondragstart=ev=>{picked=c;ev.dataTransfer.setData('text','x')};tray.appendChild(c)});
+}
+function sDrop(bin){
+  if(!picked)return void($('sFb').className='feedback',$('sFb').textContent='👆 Эхлээд дээрх зүйлсээс нэгийг сонгоорой');
+  const c=picked,ok=c.dataset.t===bin.dataset.bin,f=$('sFb');
+  if(ok){c.classList.remove('picked');c.draggable=false;c.onclick=null;bin.querySelector('.in').appendChild(c);picked=null;sScore++;$('sScore').textContent=sScore;f.className='feedback ok';f.textContent='🎉 Зөв!';confetti(25);
+    if(sScore===ITEMS.length){f.textContent='🏆 Гайхалтай! Бүгдийг зөв ангиллаа!';confetti(160)}}
+  else{c.classList.add('bad');setTimeout(()=>c.classList.remove('bad'),450);f.className='feedback no';f.textContent=HINT[c.dataset.t]}
+}
+document.querySelectorAll('.bin').forEach(b=>{b.onclick=()=>sDrop(b);b.ondragover=e=>{e.preventDefault();b.classList.add('over')};b.ondragleave=()=>b.classList.remove('over');b.ondrop=e=>{e.preventDefault();b.classList.remove('over');sDrop(b)}});
+$('sReset').onclick=sBuild;sBuild();
+
+/* ================= Water lab ================= */
+const lc=$('lab'),lx=lc.getContext('2d');
+let L;function lInit(){L={T:-10,ice:1,water:0,mode:'stop',plate:false,plateW:0,puffs:[],falling:[],bubbles:[],lastCond:-99,lastProc:null,frame:0,lost:0}}lInit();
+const BX=250,BW=320,BY=200,BH=290,MAXH=250;
+function lStep(){
+  const S=L;S.frame++;let proc=null;
+  if(S.mode==='heat'){
+    if(S.ice>0&&S.T<0)S.T=Math.min(0,S.T+.25);
+    else if(S.ice>0){S.T=0;const d=Math.min(S.ice,.0045);S.ice-=d;S.water+=d;proc='melt'}
+    else if(S.water>0&&S.T<100)S.T=Math.min(100,S.T+.35);
+    else if(S.water>0){S.T=100;const d=Math.min(S.water,.0028);S.water-=d;S.puffs.push({x:BX+40+Math.random()*(BW-80),y:BY+BH-S.water*MAXH-10,a:d,r:rnd(14,22),life:0});proc='boil'}
+    else S.T=Math.min(110,S.T+.2);
+  }else if(S.mode==='cool'){
+    if(S.T>0&&!(S.T<=0))S.T=Math.max(0,S.T-.4);
+    if(S.T<=0){if(S.water>0){S.T=0;const d=Math.min(S.water,.0045);S.water-=d;S.ice+=d;proc='freeze'}else S.T=Math.max(-20,S.T-.25)}
+  }
+  // steam
+  for(const p of S.puffs){p.life++;p.y-=1.6;p.x+=Math.sin((p.life+p.x)/12)*.6;p.r+=.08;
+    if(S.plate&&p.y<BY-55){p.done=true;S.plateW+=p.a;S.lastCond=S.frame}
+    else if(p.y<20){p.done=true;S.lost+=p.a}}
+  S.puffs=S.puffs.filter(p=>!p.done);
+  if(S.plateW>.03){S.plateW-=.03;S.falling.push({x:BX+40+Math.random()*(BW-80),y:BY-40,a:.03,v:1})}
+  for(const f of S.falling){f.v+=.35;f.y+=f.v;if(f.y>BY+BH-S.water*MAXH-6){f.done=true;S.water+=f.a}}
+  S.falling=S.falling.filter(f=>!f.done);
+  if(S.frame-S.lastCond<20)proc=proc==='boil'?'boil+cond':(proc||'cond');
+  if(S.mode==='heat'&&S.T>=90&&S.water>0)S.bubbles.push({x:BX+30+Math.random()*(BW-60),y:BY+BH-8,v:rnd(1,2.5)});
+  S.bubbles.forEach(b=>{b.y-=b.v;if(b.y<BY+BH-S.water*MAXH)b.done=true});S.bubbles=S.bubbles.filter(b=>!b.done);
+  if(proc!==S.lastProc){S.lastProc=proc;lUI(proc)}
+}
+function lUI(proc){
+  const map={melt:['aMelt','🔥 Мөс <span class="h-c">хайлж</span> байна!'],boil:['aBoil','🔥 Ус буцалж <span class="h-c">ууршиж</span> байна!'],cond:['aCond','❄️ Уур хүйтэн тавган дээр <span class="c-c">конденсацид</span> орж байна!'],freeze:['aFreeze','❄️ Ус <span class="c-c">хөлдөж</span> байна!'],'boil+cond':['aBoil aCond','🔥 Ус <span class="h-c">ууршиж</span>, таган дээр <span class="c-c">конденсацид</span> орж байна!']};
+  ['aMelt','aBoil','aCond','aFreeze'].forEach(id=>$(id).classList.toggle('on',!!(map[proc]&&map[proc][0].split(' ').includes(id))));
+  if(map[proc])$('lProc').innerHTML=map[proc][1];
+  else{const S=L;$('lProc').innerHTML=S.ice>.5?'🧊 Мөс — <span class="s-c">хатуу</span> төлөв':S.water>.02?'💧 Ус — <span class="l-c">шингэн</span> төлөв':S.puffs.length?'♨️ Уур — <span class="g-c">хий</span> төлөв':'🫙 Сав хоосорлоо'}
+}
+function lDraw(){
+  const S=L,c=lx;c.clearRect(0,0,900,600);
+  const bg=c.createLinearGradient(0,0,0,600);bg.addColorStop(0,'#f7fcff');bg.addColorStop(1,'#e6f3ff');c.fillStyle=bg;c.fillRect(0,0,900,600);
+  c.fillStyle='#d8c3a5';c.fillRect(0,560,900,40);
+  // burner
+  c.fillStyle='#5b6474';c.fillRect(BX+60,BY+BH+28,BW-120,40);c.fillRect(BX+BW/2-60,BY+BH+60,120,12);
+  if(S.mode==='heat'){for(let i=0;i<6;i++){const fx=BX+90+i*(BW-180)/5,fh=30+Math.sin(S.frame/4+i)*10;c.fillStyle='#ff7a2e';c.beginPath();c.moveTo(fx-14,BY+BH+28);c.quadraticCurveTo(fx,BY+BH+28-fh*1.3,fx+14,BY+BH+28);c.fill();c.fillStyle='#ffd23f';c.beginPath();c.moveTo(fx-7,BY+BH+28);c.quadraticCurveTo(fx,BY+BH+28-fh*.7,fx+7,BY+BH+28);c.fill()}}
+  if(S.mode==='cool'){c.save();c.globalAlpha=.25+.1*Math.sin(S.frame/10);c.fillStyle='#22b2f0';c.beginPath();c.roundRect(BX-30,BY-20,BW+60,BH+40,30);c.fill();c.restore();
+    c.font='34px "Segoe UI Emoji",sans-serif';for(let i=0;i<6;i++){c.fillText('❄️',BX-60+(i%2)*(BW+80),BY+30+Math.floor(i/2)*100+Math.sin(S.frame/15+i)*6)}}
+  // water
+  const wl=S.water*MAXH,top=BY+BH-wl;
+  if(wl>1){const g=c.createLinearGradient(0,top,0,BY+BH);g.addColorStop(0,'#6fa2ff');g.addColorStop(1,'#2f6bff');c.fillStyle=g;c.beginPath();c.moveTo(BX+4,BY+BH-4);c.lineTo(BX+4,top);
+    for(let x=BX+4;x<=BX+BW-4;x+=10)c.lineTo(x,top+Math.sin(x/18+S.frame/(S.T>=90?3:10))*(S.T>=90?4:2));c.lineTo(BX+BW-4,BY+BH-4);c.closePath();c.fill()}
+  S.bubbles.forEach(b=>{c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=2;c.beginPath();c.arc(b.x,b.y,5,0,7);c.stroke()});
+  // ice cubes (float on water)
+  const n=Math.ceil(S.ice*6-1e-6),slots=[[.2,0],[.5,0],[.8,0],[.33,1],[.67,1],[.5,2]];
+  for(let i=0;i<n;i++){const frac=i===n-1?(S.ice*6-(n-1)):1,s=Math.max(10,62*Math.sqrt(frac)),[sx,row]=slots[i];
+    const baseY=wl>20?top+8:BY+BH-6;iceCube(c,BX+sx*BW,baseY-s/2-row*52,s,false)}
+  // beaker glass
+  c.strokeStyle='#8fbbe0';c.lineWidth=6;c.beginPath();c.moveTo(BX-6,BY-10);c.lineTo(BX,BY+BH-20);c.quadraticCurveTo(BX,BY+BH,BX+20,BY+BH);c.lineTo(BX+BW-20,BY+BH);c.quadraticCurveTo(BX+BW,BY+BH,BX+BW,BY+BH-20);c.lineTo(BX+BW+6,BY-10);c.stroke();
+  c.strokeStyle='rgba(143,187,224,.7)';c.lineWidth=2;for(let i=1;i<5;i++){const y=BY+BH-i*MAXH/5;c.beginPath();c.moveTo(BX+BW-30,y);c.lineTo(BX+BW-8,y);c.stroke()}
+  c.fillStyle='rgba(255,255,255,.45)';c.fillRect(BX+12,BY+10,10,BH-50);
+  // plate
+  if(S.plate){c.fillStyle='#cfe8f8';c.strokeStyle='#8fbbe0';c.lineWidth=3;c.beginPath();c.roundRect(BX-40,BY-70,BW+80,18,9);c.fill();c.stroke();
+    c.font='26px "Segoe UI Emoji",sans-serif';c.fillText('❄️',BX-34,BY-78);
+    const nd=Math.min(16,Math.floor(S.plateW/.0019));for(let i=0;i<nd;i++)dropShape(c,BX-10+(i*37)%(BW+20),BY-40+(i%3)*3,6+(S.plateW/.03)*5,'#4f8dff')}
+  S.puffs.forEach(p=>puff(c,p.x,p.y,p.r,Math.max(0,.85-p.life/260)));
+  S.falling.forEach(f=>dropShape(c,f.x,f.y,10,'#3f7cff'));
+  // thermometer
+  const tx=720,ty=110,th=360,frac=(S.T+20)/140;
+  c.fillStyle='#fff';c.strokeStyle='#c9d6e6';c.lineWidth=4;c.beginPath();c.roundRect(tx-16,ty,32,th,16);c.fill();c.stroke();
+  c.beginPath();c.arc(tx,ty+th+20,30,0,7);c.fill();c.stroke();
+  const tc=S.T<0?'#22b2f0':S.T<60?'#ffb02e':'#ff5a36';c.fillStyle=tc;c.beginPath();c.arc(tx,ty+th+20,22,0,7);c.fill();
+  c.fillRect(tx-8,ty+th-frac*th,16,frac*th+10);
+  c.font='700 18px Rubik,sans-serif';c.fillStyle='#16284a';c.textAlign='left';
+  [[0,'0°C'],[100,'100°C']].forEach(([v,t])=>{const y=ty+th-(v+20)/140*th;c.fillRect(tx+18,y-1,14,3);c.fillText(t,tx+38,y+6)});
+  c.font='800 34px Rubik,sans-serif';c.textAlign='center';c.fillText(Math.round(S.T)+'°C',tx,ty-22);
+  // amounts
+  c.textAlign='left';c.font='700 20px Rubik,sans-serif';
+  const vap=S.puffs.reduce((a,p)=>a+p.a,0)+S.plateW;
+  [['🧊 Мөс',S.ice,'#00a3c4'],['💧 Ус',S.water,'#2f6bff'],['♨️ Уур',Math.min(1,vap*6),'#9a63f5']].forEach(([t,v,col],i)=>{const y=40+i*36;c.fillStyle='#16284a';c.fillText(t,20,y+6);c.fillStyle='#e3eef9';c.beginPath();c.roundRect(110,y-8,120,16,8);c.fill();c.fillStyle=col;c.beginPath();c.roundRect(110,y-8,Math.max(0,120*Math.min(1,v)),16,8);c.fill()});
+  if(S.lost>.05&&!S.plate){c.fillStyle='#7440d6';c.font='700 19px Rubik,sans-serif';c.fillText('💨 Уур агаарт тарж байна — таваг тавиад үзээрэй!',20,580)}
+}
+const setMode=m=>{L.mode=m;$('lHeat').className='btn '+(m==='heat'?'heat sel':'heat');$('lCool').className='btn '+(m==='cool'?'cool sel':'cool');$('lStop').className='btn ghost'+(m==='stop'?' on':'')};
+$('lHeat').onclick=()=>setMode('heat');$('lCool').onclick=()=>setMode('cool');$('lStop').onclick=()=>setMode('stop');
+$('lPlate').onclick=()=>{L.plate=!L.plate;$('lPlate').classList.toggle('on',L.plate);$('lPlate').textContent=L.plate?'🍽️ Таваг авах':'🍽️ Таваг тавих'};
+$('lReset').onclick=()=>{const pl=L.plate;lInit();L.plate=pl;setMode('stop');lUI(null)};
+setMode('stop');lUI(null);
+
+/* ================= Daily life ================= */
+const DL=[
+  {e:'🍦',t:'Зайрмаг нарны илчинд урсаж эхэллээ.',p:'melt',x:'Хатуу зайрмаг дулаанд шингэн болж байна — хайлах.'},
+  {e:'☀️',t:'Борооны дараах шалбааг нар гарахаар хатлаа.',s:'(Тэмүжин, Ану хоёрын яриаг санаарай)',p:'evap',x:'Нарны илчинд ус уур болж агаарт дэгдэв — уурших.'},
+  {e:'🥤',t:'Хүйтэн ундааны савны гадна талд усан дусал үүслээ.',p:'cond',x:'Агаар дахь усны уур хүйтэн саван дээр хөрж ус болов — конденсаци.'},
+  {e:'❄️',t:'Өвөл нуурын ус мөс болжээ.',p:'freeze',x:'Хүйтэнд шингэн ус хатуу мөс болов — хөлдөх.'},
+  {e:'👕',t:'Нойтон хувцас гадаа өлгөхөд хатлаа.',p:'evap',x:'Хувцасны ус уур болж агаарт гарав — уурших.'},
+  {e:'🪟',t:'Өвөл цонхны шилэн дээр усан дусал үүслээ.',p:'cond',x:'Өрөөний бүлээн агаар дахь уур хүйтэн шилэн дээр ус болов — конденсаци.'},
+  {e:'🏔️',t:'Хавар уулын цас, голын мөс хайлж байна.',p:'melt',x:'Дулаарахад мөс, цас ус болно — хайлах.'},
+  {e:'🍲',t:'Буцалж буй савны таган дээр усан дусал үүслээ.',p:'cond',x:'Уур хүйтэн таган дээр хөрж ус болов — конденсаци.'},
+  {e:'🧊',t:'Ээж ус хөлдөөгчид хийгээд маргааш нь мөс болсон байлаа.',p:'freeze',x:'Ус хөргөхөд мөс болно — хөлдөх.'},
+  {e:'🕯️',t:'Асаасан лааны лав урсаж байна.',p:'melt',x:'Хатуу лав халахад шингэн болно — хайлах.'},
+];
+let dOrd=[],di=0,dScore=0,dDone=false;
+function dNew(){
+  if(!dOrd.length||di>=dOrd.length){dOrd=shuffle(DL);di=0;dScore=0;$('dScore').textContent=0}
+  dDone=false;const it=dOrd[di];$('dPic').textContent=it.e;$('dTxt').textContent=it.t;$('dSub').textContent=it.s||'';$('dTot').textContent=dOrd.length;
+  $('dFb').textContent='';document.querySelectorAll('#dOpts .btn').forEach(b=>{b.classList.remove('right','wrong');b.disabled=false});
+}
+document.querySelectorAll('#dOpts [data-p]').forEach(b=>b.onclick=()=>{
+  if(dDone)return;const it=dOrd[di],f=$('dFb');
+  if(b.dataset.p===it.p){dDone=true;b.classList.add('right');dScore++;$('dScore').textContent=dScore;f.className='feedback ok';f.textContent='🎉 Зөв! '+it.x;confetti(45)}
+  else{b.classList.add('wrong');b.disabled=true;f.className='feedback no';f.textContent='🤔 Дахин бодоорой: халааж байна уу, хөргөж байна уу?'}
+});
+$('dNext').onclick=()=>{di++;dNew()};dNew();
+
+/* ================= Experiment ================= */
+(()=>{
+  const m=$('cupM'),g=$('cupG');
+  [[m,[[30,40],[80,30],[55,70]]],[g,[[28,36],[78,28],[52,66]]]].forEach(([cup,pos])=>pos.forEach(([x,y])=>{const i=document.createElement('span');i.className='ice';i.textContent='🧊';i.style.left=x-18+'px';i.style.top=y+'px';cup.appendChild(i)}));
+  [m,g].forEach(cup=>{for(let i=0;i<22;i++){const d=document.createElement('span');d.className='drop';d.style.left=rnd(6,88)+'%';d.style.top=rnd(18,92)+'%';d.dataset.at=rnd(.05,1);cup.appendChild(d)}});
+})();
+let eTimer=null;
+$('eRun').onclick=()=>{clearInterval(eTimer);let t=0;eTimer=setInterval(()=>{t+=.01;$('eClock').textContent='⏱ '+Math.min(10,Math.round(t*10))+' мин';document.querySelectorAll('.cup .drop').forEach(d=>d.classList.toggle('show',+d.dataset.at<=t));if(t>=1)clearInterval(eTimer)},100)};
+$('eReset').onclick=()=>{clearInterval(eTimer);$('eClock').textContent='⏱ 0 мин';document.querySelectorAll('.cup .drop').forEach(d=>d.classList.remove('show'));$('eFb').textContent=''};
+document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const f=$('eFb');if(b.dataset.e==='1'){f.className='feedback ok';f.innerHTML='🎉 Зөв! Дусал <b>өнгөгүй</b>. Агаар дахь усны уур хүйтэн аяган дээр хөрж ус болсон — <b>конденсаци</b>.';confetti(60)}else{f.className='feedback no';f.textContent='🤔 Ус аяганы дотроос гарсан бол будагтай байх байсан. Харин дусал хаанаас ирсэн бэ?'}});
+
+/* ================= Quiz ================= */
+const Q=[
+  {q:'Аль нь хатуу биет вэ?',o:['Шүүс','Хонх','Бөмбөлөг доторх агаар','Бороо'],a:1,e:'Хонх өөрийн тогтсон хэлбэртэй — хатуу.'},
+  {q:'Аль нь хий вэ?',o:['Сүү','Мөс','Усны уур','Чулуу'],a:2,e:'Усны уур бол хий.'},
+  {q:'Мөсийг халаахад ус болох үзэгдлийг юу гэдэг вэ?',o:['Хөлдөх','Хайлах','Уурших','Конденсаци'],a:1,e:'Хатуу ➜ шингэн = хайлах.'},
+  {q:'Шалбааг нарны илчинд хатах нь ямар үзэгдэл вэ?',o:['Хайлах','Хөлдөх','Уурших','Конденсаци'],a:2,e:'Шингэн ➜ хий = уурших.'},
+  {q:'Хийн төлөвөөс шингэн төлөвт шилжихийг юу гэдэг вэ?',o:['Конденсаци','Хайлах','Хөлдөх','Уурших'],a:0,e:'Хий ➜ шингэн = конденсаци.'},
+  {q:'Усыг хөлдөөгчид хийвэл юу болох вэ?',o:['Уур болно','Мөс болно','Алга болно','Өөрчлөгдөхгүй'],a:1,e:'Шингэн ➜ хатуу = хөлдөх.'},
+  {q:'Хүйтэн ундааны саван дээрх дусал хаанаас ирсэн бэ?',o:['Савны дотроос','Агаар дахь усны уураас','Тэнгэрээс','Мөснөөс'],a:1,e:'Агаар дахь уур хөрж ус болсон.'},
+  {q:'Аль нь савыг бүхэлд нь дүүргэж тархдаг вэ?',o:['Хатуу','Шингэн','Хий','Аль нь ч биш'],a:2,e:'Хийн бөөмс бүх зүгт тархдаг.'},
+];
+let qi=0,qRes=[];const quiz=$('quiz');
+function renderQ(){
+  if(qi>=Q.length){const s=qRes.filter(Boolean).length,st=s>=7?3:s>=5?2:s>=3?1:0;
+    quiz.innerHTML=`<div class="card result"><div class="bigstars">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</div><h1 style="margin:10px 0" class="l-c">${s} / ${Q.length}</h1><p style="font-size:26px;font-weight:700">${st===3?'Гайхалтай! Та жинхэнэ эрдэмтэн боллоо! 🧑‍🔬':st===2?'Сайн байна! Бага зэрэг давтвал төгс! 👍':'Хамтдаа дахин давтъя! 💪'}</p><button class="btn" onclick="qi=0;qRes=[];renderQ()">↺ Дахин эхлэх</button></div>`;
+    if(s>=5)confetti(160);return}
+  const it=Q[qi];
+  quiz.innerHTML=`<h2>❓ Шалгацгаая! <span style="font-size:22px" class="muted">${qi+1}/${Q.length}</span></h2>
+    <div class="qbar">${Q.map((_,i)=>`<i class="${i<qi?(qRes[i]?'ok':'no'):i===qi?'cur':''}"></i>`).join('')}</div>
+    <div class="quiz-q">${it.q}</div>
+    <div class="quiz-opts">${it.o.map((o,i)=>`<button class="qopt" data-i="${i}"><span class="k"><span>${'АБВГ'[i]}</span></span>${o}</button>`).join('')}</div>
+    <div class="feedback" id="qFb"></div>
+    <div style="text-align:right"><button class="btn sun" id="qNext" style="visibility:hidden">Дараагийн асуулт ▶</button></div>`;
+  quiz.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===it.a;qRes[qi]=ok;
+    quiz.querySelectorAll('.qopt').forEach(x=>{x.disabled=true;if(+x.dataset.i===it.a)x.classList.add('right')});
+    if(!ok)b.classList.add('wrong');else confetti(50);
+    const f=$('qFb');f.className='feedback '+(ok?'ok':'no');f.textContent=(ok?'🎉 Зөв! ':'❌ Буруу. ')+it.e;$('qNext').style.visibility='visible'});
+  $('qNext').onclick=()=>{qi++;renderQ()};
+}
+renderQ();
+
+/* ================= Traffic lights ================= */
+const lcnt=JSON.parse(store.get('sl-lights')||'{"g":0,"y":0,"r":0}');
+function drawL(){document.querySelectorAll('.light').forEach(b=>b.querySelector('.n').textContent=lcnt[b.dataset.l])}
+document.querySelectorAll('.light').forEach(b=>b.onclick=()=>{lcnt[b.dataset.l]++;store.set('sl-lights',JSON.stringify(lcnt));drawL();b.classList.add('on');setTimeout(()=>b.classList.remove('on'),300)});
+$('lReset2').onclick=()=>{lcnt.g=lcnt.y=lcnt.r=0;store.set('sl-lights',JSON.stringify(lcnt));drawL()};drawL();
+
+/* ================= Confetti (water drops & snowflakes) ================= */
+const cc=$('confetti'),cx2=cc.getContext('2d');let parts=[],cRun=false;
+function confetti(n){cc.width=innerWidth;cc.height=innerHeight;const cols=['#00a3c4','#2f6bff','#9a63f5','#ffc23a','#ff5a36','#22b2f0'];
+  for(let i=0;i<n;i++)parts.push({x:innerWidth/2+rnd(-150,150),y:innerHeight*.45,vx:rnd(-7,7),vy:-rnd(4,18),s:rnd(6,12),c:cols[i%6],r:rnd(0,6),life:120,shape:i%3});
+  if(!cRun){cRun=true;requestAnimationFrame(cStep)}}
+function cStep(){cx2.clearRect(0,0,cc.width,cc.height);
+  parts.forEach(p=>{p.vy+=.4;p.x+=p.vx;p.y+=p.vy;p.r+=.15;p.life--;cx2.save();cx2.translate(p.x,p.y);cx2.rotate(p.r);cx2.fillStyle=p.c;
+    if(p.shape===0){cx2.beginPath();cx2.arc(0,0,p.s/2,0,7);cx2.fill()}else if(p.shape===1){dropShape(cx2,0,0,p.s*.7,p.c)}else cx2.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);cx2.restore()});
+  parts=parts.filter(p=>p.life>0&&p.y<cc.height+20);if(parts.length)requestAnimationFrame(cStep);else{cRun=false;cx2.clearRect(0,0,cc.width,cc.height)}}
+
+/* ================= Main loop ================= */
+function frame(){
+  if(isActive(pc)){pStep();pDraw()}
+  if(isActive(lc)){lStep();lDraw()}
+  requestAnimationFrame(frame);
+}
+addEventListener('resize',pSize);
+go(0);requestAnimationFrame(frame);
+</script>
+</body>
+</html>
